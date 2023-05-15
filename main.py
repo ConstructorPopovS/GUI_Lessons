@@ -1,7 +1,8 @@
 import matplotlib
 matplotlib.use("TkAgg")
 
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+# from matplotlib.backends.backend_tkagg import NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
 
 import tkinter as tk
@@ -50,6 +51,10 @@ class StartPage(tk.Frame):
                             command=lambda: controller.show_frame(PageTwo))
         button2.pack()
 
+        button3 = ttk.Button(self, text="Visit page Three",
+                            command=lambda: controller.show_frame(PageThree))
+        button3.pack()
+
 class PageOne(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -65,7 +70,7 @@ class PageOne(tk.Frame):
         button2.pack()
 
         button3 = ttk.Button(self, text="Visit page Three",
-                            command=lambda: controller.show_frame(PageOne))
+                            command=lambda: controller.show_frame(PageThree))
         button3.pack()
 
 class PageTwo(tk.Frame):
@@ -83,7 +88,7 @@ class PageTwo(tk.Frame):
         button2.pack()
 
         button3 = ttk.Button(self, text="Visit page Three",
-                            command=lambda: controller.show_frame(PageOne))
+                            command=lambda: controller.show_frame(PageThree))
         button3.pack()
 
 class PageThree(tk.Frame):

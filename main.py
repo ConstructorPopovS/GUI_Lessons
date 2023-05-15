@@ -109,6 +109,16 @@ class PageThree(tk.Frame):
                             command=lambda: controller.show_frame(PageOne))
         button3.pack()
 
+        f = Figure(figsize=(5,5), dpi=100)
+        a = f.add_subplot(111)
+        a.plot([1,2,3,4,5,6,7,8],[5,6,7,8,9,8,7,9])
+
+        canvas = FigureCanvasTkAgg(f, self)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        
+
+
 app = MyApp()
 app.mainloop()
 

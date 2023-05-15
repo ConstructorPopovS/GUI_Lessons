@@ -1,4 +1,12 @@
+import matplotlib
+matplotlib.use("TkAgg")
+
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
+from matplotlib.figure import Figure
+
 import tkinter as tk
+from tkinter import ttk
+
 
 LARGE_FONT = ("Verdana", 18)
 
@@ -6,16 +14,17 @@ class MyApp(tk.Tk):
 
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
+        # tk.Tk.iconbitmap(self)
+        tk.Tk.wm_title(self, "Th Con Program")
+
         container = tk.Frame(self)
-
         container.pack(side="top", fill="both", expand=True)
-
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
         
-        for F in (StartPage, PageOne, PageTwo):
+        for F in (StartPage, PageOne, PageTwo, PageThree):
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -33,11 +42,11 @@ class StartPage(tk.Frame):
         label = tk.Label(self, text="Start Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
-        button1 = tk.Button(self, text="Visit page One", 
+        button1 = ttk.Button(self, text="Visit page One", 
                             command=lambda: controller.show_frame(PageOne))
         button1.pack()
 
-        button2 = tk.Button(self, text="Visit page Two",
+        button2 = ttk.Button(self, text="Visit page Two",
                             command=lambda: controller.show_frame(PageTwo))
         button2.pack()
 
@@ -47,13 +56,17 @@ class PageOne(tk.Frame):
         label = tk.Label(self, text="Page One", font = LARGE_FONT)
         label.pack(pady=10, padx=10)
 
-        button1 = tk.Button(self, text="Back to Home",
+        button1 = ttk.Button(self, text="Back to Home",
                             command=lambda: controller.show_frame(StartPage))
         button1.pack()
 
-        button2 = tk.Button(self, text="Visit page Two",
+        button2 = ttk.Button(self, text="Visit page Two",
                             command=lambda: controller.show_frame(PageTwo))
         button2.pack()
+
+        button3 = ttk.Button(self, text="Visit page Three",
+                            command=lambda: controller.show_frame(PageOne))
+        button3.pack()
 
 class PageTwo(tk.Frame):
     def __init__(self, parent, controller):
@@ -61,13 +74,35 @@ class PageTwo(tk.Frame):
         label = tk.Label(self, text="Page Two!!!", font = LARGE_FONT)
         label.pack(pady=10, padx=10)
 
-        button1 = tk.Button(self, text="Back to Home",
+        button1 = ttk.Button(self, text="Back to Home",
                             command=lambda: controller.show_frame(StartPage))
         button1.pack()
 
-        button2 = tk.Button(self, text="Visit page One",
+        button2 = ttk.Button(self, text="Visit page One",
                             command=lambda: controller.show_frame(PageOne))
         button2.pack()
+
+        button3 = ttk.Button(self, text="Visit page Three",
+                            command=lambda: controller.show_frame(PageOne))
+        button3.pack()
+
+class PageThree(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        label = tk.Label(self, text="Page Three", font = LARGE_FONT)
+        label.pack(pady=10, padx=10)
+
+        button1 = ttk.Button(self, text="Back to Home",
+                            command=lambda: controller.show_frame(StartPage))
+        button1.pack()
+
+        button2 = ttk.Button(self, text="Visit page One",
+                            command=lambda: controller.show_frame(PageOne))
+        button2.pack()
+
+        button3 = ttk.Button(self, text="Visit page Two",
+                            command=lambda: controller.show_frame(PageOne))
+        button3.pack()
 
 app = MyApp()
 app.mainloop()

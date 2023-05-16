@@ -12,58 +12,45 @@ import matplotlib.animation as animation
 from matplotlib import style
 
 import tkinter as tk
-from tkinter import ttk
+# from tkinter import tk
 
 import serial
 
 LARGE_FONT = ("Verdana", 18)
 style.use("ggplot")# ggplot, dark_background
 
-f = Figure(figsize=(5,5), dpi=100)
-a = f.add_subplot(111)
-# a.plot([1,2,3,4,5,6,7,8],[5,7,8,12,9,8,10,9])
+f_tc0 = Figure(figsize=(5,5), dpi=100)
+a_tc0 = f_tc0.add_subplot(111)
 
-
-message = "Hallo, it is me!"
-print(message)
-x = 0
-print(x)
-y = 2
 xList = []
 xList.append(int(0))
-yList = []
-yList.append(int(4))
+y_tc0_List = []
 
 dataList = []
 ser = serial.Serial('/dev/ttyACM0',9600)
 
 def animate(i, dataList, ser):
-    ser.write(b'g')
-    arduinoData_string = ser.readline().decode('ascii')
+    ser.write(b'tc0')
+    arduinoData_tc0_string = ser.readline().decode('ascii')
 
     try:
-        arduinoData_float = float(arduinoData_string)
-        dataList.append(arduinoData_float)
+        arduinoData_tc0_float = float(arduinoData_tc0_string)
+        dataList.append(arduinoData_tc0_float)
+        # newX = xList[-1] + 1
+        # xList.append(newX)
 
     except:
         pass
 
     dataList = dataList[-10:]
-
-    newX = xList[-1] + 1
-    newY = yList[-1] + 3
-    xList.append(int(newX))
-    yList.append(int(newY))
+    # xList = xList[-10:]
     
-    a.clear()
-    # a.plot(xList, yList)
-    a.plot(dataList)
+    a_tc0.clear()
+    a_tc0.plot(dataList) #xList,
 
-    a.set_ylim(0, 45)
-    a.set_title("Arduino Data")
-    a.set_ylabel("Value")
-
-
+    a_tc0.set_ylim(15, 45)
+    a_tc0.set_title("Thermocouple 0")
+    a_tc0.set_ylabel("Temperature, deg C")
 
 
 class MyApp(tk.Tk):
@@ -98,17 +85,18 @@ class StartPage(tk.Frame):
         label = tk.Label(self, text="Start Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
-        button1 = ttk.Button(self, text="Visit page One", 
+        button1 = tk.Button(self, text="Visit page One", 
                             command=lambda: controller.show_frame(PageOne))
         button1.pack()
 
-        button2 = ttk.Button(self, text="Visit page Two",
+        button2 = tk.Button(self, text="Visit page Two",
                             command=lambda: controller.show_frame(PageTwo))
         button2.pack()
 
-        button3 = ttk.Button(self, text="Visit page Three",
+        button3 = tk.Button(self, text="Visit page Three",
                             command=lambda: controller.show_frame(PageThree))
         button3.pack()
+        print("Start pade is initted")
 
 class PageOne(tk.Frame):
     def __init__(self, parent, controller):
@@ -116,17 +104,18 @@ class PageOne(tk.Frame):
         label = tk.Label(self, text="Page One", font = LARGE_FONT)
         label.pack(pady=10, padx=10)
 
-        button1 = ttk.Button(self, text="Back to Home",
+        button1 = tk.Button(self, text="Back to Home",
                             command=lambda: controller.show_frame(StartPage))
         button1.pack()
 
-        button2 = ttk.Button(self, text="Visit page Two",
+        button2 = tk.Button(self, text="Visit page Two",
                             command=lambda: controller.show_frame(PageTwo))
         button2.pack()
 
-        button3 = ttk.Button(self, text="Visit page Three",
+        button3 = tk.Button(self, text="Visit page Three",
                             command=lambda: controller.show_frame(PageThree))
         button3.pack()
+        print("Page One is initted")
 
 class PageTwo(tk.Frame):
     def __init__(self, parent, controller):
@@ -134,17 +123,18 @@ class PageTwo(tk.Frame):
         label = tk.Label(self, text="Page Two!!!", font = LARGE_FONT)
         label.pack(pady=10, padx=10)
 
-        button1 = ttk.Button(self, text="Back to Home",
+        button1 = tk.Button(self, text="Back to Home",
                             command=lambda: controller.show_frame(StartPage))
         button1.pack()
 
-        button2 = ttk.Button(self, text="Visit page One",
+        button2 = tk.Button(self, text="Visit page One",
                             command=lambda: controller.show_frame(PageOne))
         button2.pack()
 
-        button3 = ttk.Button(self, text="Visit page Three",
+        button3 = tk.Button(self, text="Visit page Three",
                             command=lambda: controller.show_frame(PageThree))
         button3.pack()
+        print("Page Two is initted")
 
 class PageThree(tk.Frame):
     def __init__(self, parent, controller):
@@ -152,26 +142,28 @@ class PageThree(tk.Frame):
         label = tk.Label(self, text="Page Three", font = LARGE_FONT)
         label.pack(pady=10, padx=10)
 
-        button1 = ttk.Button(self, text="Back to Home",
+        button1 = tk.Button(self, text="Back to Home",
                             command=lambda: controller.show_frame(StartPage))
         button1.pack()
 
-        button2 = ttk.Button(self, text="Visit page One",
+        button2 = tk.Button(self, text="Visit page One",
                             command=lambda: controller.show_frame(PageOne))
         button2.pack()
 
-        button3 = ttk.Button(self, text="Visit page Two",
+        button3 = tk.Button(self, text="Visit page Two",
                             command=lambda: controller.show_frame(PageOne))
         button3.pack()
+        print("Page Three init")
 
-        canvas = FigureCanvasTkAgg(f, self)
+        canvas = FigureCanvasTkAgg(f_tc0, self)
         canvas.draw()
         canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        print("Page Three is initted")
 
 
 app = MyApp()
 MAX_FRAMES = 60
-ani = animation.FuncAnimation(f, animate, frames=100, fargs=(dataList, ser), interval=500) #, save_count=MAX_FRAMES
+ani = animation.FuncAnimation(f_tc0, animate, frames=100, fargs=(dataList, ser), interval=1000) #, save_count=MAX_FRAMES
 app.mainloop()
 ser.close()
 

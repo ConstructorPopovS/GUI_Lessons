@@ -14,6 +14,7 @@ from matplotlib import style
 import tkinter as tk
 from tkinter import ttk
 
+import serial
 
 LARGE_FONT = ("Verdana", 18)
 style.use("ggplot")# ggplot, dark_background
@@ -33,14 +34,36 @@ xList.append(int(0))
 yList = []
 yList.append(int(4))
 
-def animate(i):
+dataList = []
+ser = serial.Serial('/dev/ttyACM0',9600)
+
+def animate(i, dataList, ser):
+    ser.write(b'g')
+    arduinoData_string = ser.readline().decode('ascii')
+
+    try:
+        arduinoData_float = float(arduinoData_string)
+        dataList.append(arduinoData_float)
+
+    except:
+        pass
+
+    dataList = dataList[-10:]
+
     newX = xList[-1] + 1
     newY = yList[-1] + 3
     xList.append(int(newX))
     yList.append(int(newY))
     
     a.clear()
-    a.plot(xList, yList)
+    # a.plot(xList, yList)
+    a.plot(dataList)
+
+    a.set_ylim(0, 45)
+    a.set_title("Arduino Data")
+    a.set_ylabel("Value")
+
+
 
 
 class MyApp(tk.Tk):
@@ -148,7 +171,8 @@ class PageThree(tk.Frame):
 
 app = MyApp()
 MAX_FRAMES = 60
-ani = animation.FuncAnimation(f, animate, interval=1000, save_count=MAX_FRAMES)
+ani = animation.FuncAnimation(f, animate, frames=100, fargs=(dataList, ser), interval=500) #, save_count=MAX_FRAMES
 app.mainloop()
+ser.close()
 
 

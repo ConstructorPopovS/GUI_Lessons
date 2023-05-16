@@ -1,15 +1,47 @@
+# lesson from youtube "Live Maplotlib Graph in Tkinter Window in Python3 - Tkinter tutorial Python 3.4p.7"
 import matplotlib
 matplotlib.use("TkAgg")
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg #, NavigationToolbar2TkAgg
+# S: I have made additional installation:
+#  sudo apt-get install python3-pill.imagetk
+#  sudo pip install ipython
 
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-# from matplotlib.backends.backend_tkagg import NavigationToolbar2TkAgg
+
 from matplotlib.figure import Figure
+import matplotlib.animation as animation
+from matplotlib import style
 
 import tkinter as tk
 from tkinter import ttk
 
 
 LARGE_FONT = ("Verdana", 18)
+style.use("ggplot")# ggplot, dark_background
+
+f = Figure(figsize=(5,5), dpi=100)
+a = f.add_subplot(111)
+# a.plot([1,2,3,4,5,6,7,8],[5,7,8,12,9,8,10,9])
+
+
+message = "Hallo, it is me!"
+print(message)
+x = 0
+print(x)
+y = 2
+xList = []
+xList.append(int(0))
+yList = []
+yList.append(int(4))
+
+def animate(i):
+    newX = xList[-1] + 1
+    newY = yList[-1] + 3
+    xList.append(int(newX))
+    yList.append(int(newY))
+    
+    a.clear()
+    a.plot(xList, yList)
+
 
 class MyApp(tk.Tk):
 
@@ -109,17 +141,14 @@ class PageThree(tk.Frame):
                             command=lambda: controller.show_frame(PageOne))
         button3.pack()
 
-        f = Figure(figsize=(5,5), dpi=100)
-        a = f.add_subplot(111)
-        a.plot([1,2,3,4,5,6,7,8],[5,6,7,8,9,8,7,9])
-
         canvas = FigureCanvasTkAgg(f, self)
         canvas.draw()
         canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        
 
 
 app = MyApp()
+MAX_FRAMES = 60
+ani = animation.FuncAnimation(f, animate, interval=1000, save_count=MAX_FRAMES)
 app.mainloop()
 
 

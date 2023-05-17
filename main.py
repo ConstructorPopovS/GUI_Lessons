@@ -14,6 +14,9 @@ from tkinter.messagebox import askyesno
 import serial
 import random
 
+import AnimationFunc
+import DataReader
+
 LARGE_FONT = ("Verdana", 20)
 style.use("ggplot")# ggplot, dark_background
 
@@ -39,47 +42,13 @@ class ThermcouplePlotData():
         self.y_List = []
         self.name = name
 
-def animate(i, axs, tcData, ser): 
-    # tcData.name should be in byte format: (a_tc, y_tc_List, b'command_to_send', ser)
-    ser.write(tcData.name)
-    aData_str = ser.readline().decode('ascii')
-    # aData_str = str(random.randrange(20,40))
 
-    try:
-        aData_float = float(aData_str)
-        tcData.y_List.append(aData_float)
-        print(tcData.name.decode() + " = "+ str(aData_float))
-    except:
-        print("UserExeption: convertation tc_str to float is failed")
-        tcData.y_List.append(25)
-
-    try:
-        pass
-    except:
-        print("UserExeption: x.append")
-
-    tcData.x_List.append(i)
-
-    tcData.y_List = tcData.y_List[-10:]
-    tcData.x_List = tcData.x_List[-10:]
-
-    axs.clear()
-    axs.plot(tcData.x_List,tcData.y_List) #xList,
-    axs.set_ylim(15, 45)
-
-    try:
-        axs.set_xlim(tcData.x_List[-10], (tcData.x_List[-10] + 10))
-    except:
-        axs.set_xlim(0, 10)
-
-    axs.set_title("Thermocouple " + tcData.name.decode())
-    axs.set_ylabel("Temperature, deg C")
 
 def full_animation(i, axs, controller, ser):
     if(controller.doAnimation == True):
-        animate(i, axs[0], controller.tcData0, ser)
-        animate(i, axs[1], controller.tcData1, ser)
-        animate(i, axs[2], controller.tcData2, ser)
+        AnimationFunc.animate(i, axs[0], controller.tcData0, ser)
+        AnimationFunc.animate(i, axs[1], controller.tcData1, ser)
+        AnimationFunc.animate(i, axs[2], controller.tcData2, ser)
         print("============================")
     else:
         print("Value controller.doAnimation = " + str(controller.doAnimation))
@@ -108,10 +77,11 @@ class MyApp(tk.Tk):
         # tk.Tk.iconbitmap(self)
         tk.Tk.wm_title(self, "Thermal Conductivity Measurement Program")
 
-        self.tcData0 = ThermcouplePlotData(b'tc0')
-        self.tcData1 = ThermcouplePlotData(b'tc1')
-        self.tcData2 = ThermcouplePlotData(b'tc2')
-
+        self.data_reader = DataReader.DataReader()
+        self.x_list = []
+        self.tc0_list = []
+        self.tc1_list = []
+        self.tc2_list = []
         self.doAnimation = False
 
         container = tk.Frame(self)
@@ -229,12 +199,13 @@ app = MyApp()
 MAX_FRAMES = 60
 # ani_0 = animation.FuncAnimation(fig, animate, frames=100, fargs=(axs[0], x_List, y0_List, ser, b'tc0'), interval=1000) #, save_count=MAX_FRAMES
 
-ani = animation.FuncAnimation(fig, full_animation, frames=100, fargs=(axs, app, ser), interval=1000) #, save_count=MAX_FRAMES
+# ani = animation.FuncAnimation(fig, full_animation, frames=100, fargs=(axs, app, ser), interval=1000) #, save_count=MAX_FRAMES
 
 # ani = animation.FuncAnimation(fig, animate_all_plots, frames=100, fargs=(ser, x_List,
 #                                                                          axs[0], y0_List, b'tc0',
 #                                                                          axs[1], y1_List, b'tc1',
 #                                                                          axs[2], y2_List, b'tc2',), interval=1000)
+ani = animation.FuncAnimation(fig, AnimationFunc.animate, frames=100, fargs=(axs, app), interval=1000)
 app.mainloop()
 ser.close()
 print("Serial is closed")

@@ -21,21 +21,24 @@ import serial
 LARGE_FONT = ("Verdana", 18)
 style.use("ggplot")# ggplot, dark_background
 
-fig_tc0 = Figure(figsize=(5,5), dpi=100)
-ax_tc0 = fig_tc0.add_subplot(111)
-# xList.append(int(0))
-y_tc0_List = []
+# fig_tc0 = Figure(figsize=(5,5), dpi=100)
+# ax_tc0 = fig_tc0.add_subplot(111)
 
-# Some example data to display
-x = np.linspace(0, 2*np.pi, 400)
-y = np.sin(x**2)
 
-# A figure with two subplots
-fig, axs = plt.subplots(2)
+
+# A figure with three subplots
+fig, axs = plt.subplots(3)
+fig.set_figwidth(26)
+fig.set_figheight(14)
+
 x0_List = []
 x1_List = []
+x2_List = []
+
 y0_List = []
 y1_List = []
+y2_List = []
+
 # ax.plot(x, y)
 # ax.set_title("A single plot")
 
@@ -79,6 +82,81 @@ def animate(i,axs, x_List, y_List, ser, command_to_send_in_serial):
 def full_animation(i, axs1, axs2, x_List1, x_List2, y_List1, y_List2, ser, command1_to_send_in_serial, command2_to_send_in_serial):
     animate(i,axs1, x_List1, y_List1, ser, command1_to_send_in_serial)
     animate(i,axs2, x_List2, y_List2, ser, command2_to_send_in_serial)
+
+def animate_all_plots(i,ser, 
+                      ax0, x0_List, y0_List, command0_to_send_in_serial,
+                      ax1, x1_List, y1_List, command1_to_send_in_serial,
+                      ax2, x2_List, y2_List, command2_to_send_in_serial): 
+    
+    # command_to_send_in_serial should be in byte format: b'command_to_send'
+    ser.write(command0_to_send_in_serial)
+    y0_str = ser.readline().decode('ascii')
+
+    ser.write(command1_to_send_in_serial)
+    y1_str = ser.readline().decode('ascii')
+
+    ser.write(command2_to_send_in_serial)
+    y2_str = ser.readline().decode('ascii')
+
+    try:
+        y0_float = float(y0_str)
+        y0_List.append(y0_float)
+        print(command0_to_send_in_serial.decode() + " = "+ str(y0_float))
+
+        y1_float = float(y1_str)
+        y1_List.append(y1_float)
+        print(command0_to_send_in_serial.decode() + " = "+ str(y1_float))
+        
+        y2_float = float(y2_str)
+        y2_List.append(y2_float)
+        print(command0_to_send_in_serial.decode() + " = "+ str(y2_float))
+        print("=========================")
+
+        x0_List.append(i)
+        x1_List.append(i)
+        x2_List.append(i)
+
+    except:
+        print("UserExeption: convertation tc_str to float is failed")
+
+    y0_List = y0_List[-10:]
+    y1_List = y1_List[-10:]
+    y2_List = y2_List[-10:]
+    
+    x0_List = x0_List[-10:]
+    x1_List = x1_List[-10:]
+    x2_List = x2_List[-10:]
+
+    ax0.clear()
+    ax0.plot(x0_List,y0_List)
+    ax0.set_ylim(20, 55)
+
+    ax1.clear()
+    ax1.plot(x1_List,y1_List)
+    ax1.set_ylim(20, 55)
+
+    ax2.clear()
+    ax2.plot(x2_List,y2_List)
+    ax2.set_ylim(20, 55)
+
+    try:
+        ax0.set_xlim(x0_List[-10], (x0_List[-10] + 10))
+        ax1.set_xlim(x1_List[-10], (x1_List[-10] + 10))
+        ax2.set_xlim(x2_List[-10], (x2_List[-10] + 10))
+    except:
+        ax0.set_xlim(0, 10)
+        ax1.set_xlim(0, 10)
+        ax2.set_xlim(0, 10)
+
+    ax0.set_title("Thermocouple " + command0_to_send_in_serial.decode())
+    ax0.set_ylabel("Temperature, deg C")
+
+    ax1.set_title("Thermocouple " + command1_to_send_in_serial.decode())
+    ax1.set_ylabel("Temperature, deg C")
+
+    ax2.set_title("Thermocouple " + command2_to_send_in_serial.decode())
+    ax2.set_ylabel("Temperature, deg C")
+
 class MyApp(tk.Tk):
 
     def __init__(self, *args, **kwargs):
@@ -191,7 +269,17 @@ class PageThree(tk.Frame):
 app = MyApp()
 MAX_FRAMES = 60
 # ani_0 = animation.FuncAnimation(fig, animate, frames=100, fargs=(axs[0], x0_List, y0_List, ser, b'tc0'), interval=1000) #, save_count=MAX_FRAMES
-ani_1 = animation.FuncAnimation(fig, full_animation, frames=100, fargs=(axs[0], axs[1], x0_List, x1_List, y0_List, y1_List, ser, b'tc0', b'tc1'), interval=1000) #, save_count=MAX_FRAMES
+# ani_1 = animation.FuncAnimation(fig, full_animation, frames=100, fargs=(axs[0], axs[1], x0_List, x1_List, y0_List, y1_List, ser, b'tc0', b'tc1'), interval=1000) #, save_count=MAX_FRAMES
+
+# animate_all_plots(i,ser, 
+#                       ax0, x0_List, y0_List, command0_to_send_in_serial,
+#                       ax1, x1_List, y1_List, command1_to_send_in_serial,
+#                       ax2, x2_List, y2_List, command2_to_send_in_serial): 
+
+ani = animation.FuncAnimation(fig, animate_all_plots, frames=100, fargs=(ser,
+                                                                         axs[0], x0_List, y0_List, b'tc0',
+                                                                         axs[1], x1_List, y1_List, b'tc1',
+                                                                         axs[2], x2_List, y2_List, b'tc2',), interval=1000)
 app.mainloop()
 ser.close()
 print("Serial is closed")

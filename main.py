@@ -2,38 +2,27 @@
 import matplotlib
 matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg #, NavigationToolbar2TkAgg
-# S: I have made additional installation:
+# S: I have made additional installations:
 #  sudo apt-get install python3-pill.imagetk
 #  sudo pip install ipython
-
-
 from matplotlib.figure import Figure
 import matplotlib.animation as animation
 from matplotlib import style
-
 import tkinter as tk
-
 import matplotlib.pyplot as plt
-import numpy as np
-
 import serial
 import random
 
-LARGE_FONT = ("Verdana", 18)
+LARGE_FONT = ("Verdana", 20)
 style.use("ggplot")# ggplot, dark_background
 
-# fig_tc0 = Figure(figsize=(5,5), dpi=100)
-# ax_tc0 = fig_tc0.add_subplot(111)
-
-
-
-# A figure with three subplots
+# A figure with three subplots/axes
 fig, axs = plt.subplots(3)
-fig.set_figwidth(26)
+fig.set_figwidth(14)
 fig.set_figheight(14)
 
+# Coordinate lists
 x_List = []
-
 y0_List = []
 y1_List = []
 y2_List = []
@@ -77,6 +66,11 @@ def full_animation(i, axs0, axs1, axs2, x_List, y0_List, y1_List, y2_List, ser, 
     animate(i, axs0, x_List, y0_List, ser, ser_command0)
     animate(i, axs1, x_List, y1_List, ser, ser_command1)
     animate(i, axs2, x_List, y2_List, ser, ser_command2)
+
+class MyPlot():
+    def __init__(self):
+        pass
+
 
 def animate_all_plots(i,ser, x_List,
                       ax0, y0_List, ser_command0,
@@ -129,11 +123,11 @@ def animate_all_plots(i,ser, x_List,
 
     ax1.clear()
     ax1.plot(x_List,y1_List)
-    # ax1.set_ylim(10, 55)
+    ax1.set_ylim(10, 55)
 
     ax2.clear()
     ax2.plot(x_List,y2_List)
-    # ax2.set_ylim(10, 55)
+    ax2.set_ylim(10, 55)
 
     try:
         ax0.set_xlim(x_List[-10], (x_List[-10] + 10))
@@ -243,15 +237,15 @@ class PageThree(tk.Frame):
         label = tk.Label(self, text="Page Three", font = LARGE_FONT)
         label.pack(pady=10, padx=10)
 
-        button1 = tk.Button(self, text="Back to Home",
+        button1 = tk.Button(self, text="Back to Home", font = LARGE_FONT,
                             command=lambda: controller.show_frame(StartPage))
         button1.pack()
 
-        button2 = tk.Button(self, text="Visit page One",
+        button2 = tk.Button(self, text="Visit page One", font = LARGE_FONT,
                             command=lambda: controller.show_frame(PageOne))
         button2.pack()
 
-        button3 = tk.Button(self, text="Visit page Two",
+        button3 = tk.Button(self, text="Visit page Two", font = LARGE_FONT,
                             command=lambda: controller.show_frame(PageOne))
         button3.pack()
         
@@ -268,10 +262,10 @@ MAX_FRAMES = 60
 
 # ani_1 = animation.FuncAnimation(fig, full_animation, frames=100, fargs=(axs[0], axs[1], x_List, y0_List, y1_List, y2_List ser, b'tc0', b'tc1', b'tc2'), interval=1000) #, save_count=MAX_FRAMES
 
-# ani = animation.FuncAnimation(fig, animate_all_plots, frames=100, fargs=(ser, x_List,
-#                                                                          axs[0], y0_List, b'tc0',
-#                                                                          axs[1], y1_List, b'tc1',
-#                                                                          axs[2], y2_List, b'tc2',), interval=1000)
+ani = animation.FuncAnimation(fig, animate_all_plots, frames=100, fargs=(ser, x_List,
+                                                                         axs[0], y0_List, b'tc0',
+                                                                         axs[1], y1_List, b'tc1',
+                                                                         axs[2], y2_List, b'tc2',), interval=1000)
 app.mainloop()
 ser.close()
 print("Serial is closed")

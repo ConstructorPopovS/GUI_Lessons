@@ -14,7 +14,6 @@ class DataReader():
 
         try:
             aData_float = float(aData_str)
-            print(name.decode() + " = "+ str(aData_float), end='\t')
             return aData_float
         except:
             print("UserExeption: convertation tc_str to float is failed")

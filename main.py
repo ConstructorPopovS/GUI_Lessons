@@ -12,50 +12,97 @@ import matplotlib.animation as animation
 from matplotlib import style
 
 import tkinter as tk
-# from tkinter import tk
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 import serial
 
 LARGE_FONT = ("Verdana", 18)
 style.use("ggplot")# ggplot, dark_background
 
-f_tc0 = Figure(figsize=(5,5), dpi=100)
-f_tc1 = Figure(figsize=(5,5), dpi=100)
-
-a_tc0 = f_tc0.add_subplot(111)
-a_tc1 = f_tc1.add_subplot(111)
-
-xList = []
-xList.append(int(0))
-
+fig_tc0 = Figure(figsize=(5,5), dpi=100)
+ax_tc0 = fig_tc0.add_subplot(111)
+x_List = []
+# xList.append(int(0))
 y_tc0_List = []
-y_tc1_List = []
+
+# Some example data to display
+x = np.linspace(0, 2*np.pi, 400)
+y = np.sin(x**2)
+# A figure with just one subplot
+fig, ax = plt.subplots()
+y_List = []
+# ax.plot(x, y)
+# ax.set_title("A single plot")
+
+# A figure with two subplots
+# fig_tc, ax_tc = plt.subplots(2)
+# ax_tc[0].plot(x, y)
+# ax_tc[1].plot(x, -y)
+# ax_tc[0].set_title("The first plot")
+# ax_tc[1].set_title("The second plot")
 
 ser = serial.Serial('/dev/ttyACM0',9600)
 
-def animate_tc(i,a_tc, y_tc_List, command_to_send_in_serial, ser): 
+def animate(i,axs, x_List, y_List, ser, command_to_send_in_serial): 
     # command_to_send_in_serial should be in byte format: (a_tc, y_tc_List, b'command_to_send', ser)
     ser.write(command_to_send_in_serial)
     arduinoData_string = ser.readline().decode('ascii')
 
     try:
         arduinoData_float = float(arduinoData_string)
-        y_tc0_List.append(arduinoData_float)
+        y_List.append(arduinoData_float)
         print(command_to_send_in_serial.decode() + " = "+ str(arduinoData_float))
-        # newX = xList[-1] + 1
-        # xList.append(newX)
+        x_List.append(i)
 
     except:
         print("UserExeption: convertation tc_str to float is failed")
 
-    y_tc_List = y_tc_List[-10:]
-    # xList = xList[-10:]
+    y_List = y_List[-10:]
+    x_List = x_List[-10:]
+
+    axs.clear()
+    axs.plot(x_List,y_List) #xList,
+    axs.set_ylim(15, 45)
+    try:
+        axs.set_xlim(x_List[-10], (x_List[-10] + 10))
+    except:
+        axs.set_xlim(0, 10)
+
+    axs.set_title("Thermocouple " + command_to_send_in_serial.decode())
+    axs.set_ylabel("Temperature, deg C")
+
+def animate_tc(i,axs, y_List, command_to_send_in_serial, ser): 
+    # command_to_send_in_serial should be in byte format: (a_tc, y_tc_List, b'command_to_send', ser)
+    ser.write(command_to_send_in_serial)
+    arduinoData_string = ser.readline().decode('ascii')
+
+    try:
+        arduinoData_float = float(arduinoData_string)
+        y_List.append(arduinoData_float)
+        print(command_to_send_in_serial.decode() + " = "+ str(arduinoData_float))
+        # newX = xList[-1] + 1
+        # x_List.append(i)
+
+    except:
+        print("UserExeption: convertation tc_str to float is failed")
+
+    y_List = y_List[-10:]
+    # x_List = x_List[-10:]
+
+    axs.clear()
+    axs.plot(y_List) #xList,
+    axs.set_ylim(15, 45)
+    axs.set_title("Thermocouple " + command_to_send_in_serial.decode())
+    axs.set_ylabel("Temperature, deg C")
     
-    a_tc.clear()
-    a_tc.plot(y_tc_List) #xList,
-    a_tc.set_ylim(15, 45)
-    a_tc.set_title("Thermocouple " + command_to_send_in_serial.decode())
-    a_tc.set_ylabel("Temperature, deg C")
+    
+    # a_tc.clear()
+    # a_tc.plot(y_tc_List) #xList,
+    # a_tc.set_ylim(15, 45)
+    # a_tc.set_title("Thermocouple " + command_to_send_in_serial.decode())
+    # a_tc.set_ylabel("Temperature, deg C")
 
 
 class MyApp(tk.Tk):
@@ -159,22 +206,19 @@ class PageThree(tk.Frame):
                             command=lambda: controller.show_frame(PageOne))
         button3.pack()
         print("Page Three init")
-
-        canvas_tc0 = FigureCanvasTkAgg(f_tc0, self)
-        canvas_tc0.draw()
-        canvas_tc0.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-        canvas_tc1 = FigureCanvasTkAgg(f_tc1, self)
-        canvas_tc1.draw()
-        canvas_tc1.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        
+        canvas = FigureCanvasTkAgg(fig, self)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+ 
         print("Page Three is initted")
 
 
 app = MyApp()
 MAX_FRAMES = 60
-ani_tc0 = animation.FuncAnimation(f_tc0, animate_tc, frames=100, fargs=(a_tc0, y_tc0_List, b'tc0', ser), interval=1000) #, save_count=MAX_FRAMES
-ani_tc1 = animation.FuncAnimation(f_tc1, animate_tc, frames=100, fargs=(a_tc1, y_tc1_List, b'tc1', ser), interval=1000) #, save_count=MAX_FRAMES
+ani = animation.FuncAnimation(fig, animate, frames=100, fargs=(ax, x_List, y_List, ser, b'tc0'), interval=1000) #, save_count=MAX_FRAMES
 app.mainloop()
 ser.close()
+print("Serial is closed")
 
 

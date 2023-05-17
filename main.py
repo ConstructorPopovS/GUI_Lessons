@@ -20,13 +20,16 @@ LARGE_FONT = ("Verdana", 18)
 style.use("ggplot")# ggplot, dark_background
 
 f_tc0 = Figure(figsize=(5,5), dpi=100)
+f_tc1 = Figure(figsize=(5,5), dpi=100)
 
 a_tc0 = f_tc0.add_subplot(111)
+a_tc1 = f_tc1.add_subplot(111)
 
 xList = []
 xList.append(int(0))
 
 y_tc0_List = []
+y_tc1_List = []
 
 ser = serial.Serial('/dev/ttyACM0',9600)
 
@@ -74,7 +77,7 @@ class MyApp(tk.Tk):
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
 
-        self.show_frame(StartPage)
+        self.show_frame(PageThree)
 
     def show_frame(self, cont):
         frame = self.frames[cont]
@@ -160,12 +163,17 @@ class PageThree(tk.Frame):
         canvas_tc0 = FigureCanvasTkAgg(f_tc0, self)
         canvas_tc0.draw()
         canvas_tc0.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        canvas_tc1 = FigureCanvasTkAgg(f_tc1, self)
+        canvas_tc1.draw()
+        canvas_tc1.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         print("Page Three is initted")
 
 
 app = MyApp()
 MAX_FRAMES = 60
 ani_tc0 = animation.FuncAnimation(f_tc0, animate_tc, frames=100, fargs=(a_tc0, y_tc0_List, b'tc0', ser), interval=1000) #, save_count=MAX_FRAMES
+ani_tc1 = animation.FuncAnimation(f_tc1, animate_tc, frames=100, fargs=(a_tc1, y_tc1_List, b'tc1', ser), interval=1000) #, save_count=MAX_FRAMES
 app.mainloop()
 ser.close()
 

@@ -16,136 +16,105 @@ import random
 LARGE_FONT = ("Verdana", 20)
 style.use("ggplot")# ggplot, dark_background
 
-# A figure with three subplots/axes
-fig, axs = plt.subplots(3)
-fig.set_figwidth(14)
-fig.set_figheight(14)
-
 # Coordinate lists
 x_List = []
 y0_List = []
 y1_List = []
 y2_List = []
 
-ser = serial.Serial(port='/dev/ttyACM0',baudrate=9600,timeout=15)
-
-
-def animate(i,axs, x_List, y_List, ser, command_to_send_in_serial): 
-    # command_to_send_in_serial should be in byte format: (a_tc, y_tc_List, b'command_to_send', ser)
-    ser.write(command_to_send_in_serial)
-    aData_str = ser.readline().decode('ascii')
-    # aData_str = str(random.randrange(20,40))
-
-    try:
-        aData_float = float(aData_str)
-        y_List.append(aData_float)
-        print(command_to_send_in_serial.decode() + " = "+ str(aData_float))
-        # TODO:Check append(i) in first time
-        if (i > 0):
-            if (x_List[-1] != i):
-                x_List.append(i)
-
-    except:
-        print("UserExeption: convertation tc_str to float is failed")
-
-    y_List = y_List[-10:]
-    x_List = x_List[-10:]
-
-    axs.clear()
-    axs.plot(x_List,y_List) #xList,
-    axs.set_ylim(15, 45)
-    try:
-        axs.set_xlim(x_List[-10], (x_List[-10] + 10))
-    except:
-        axs.set_xlim(0, 10)
-
-    axs.set_title("Thermocouple " + command_to_send_in_serial.decode())
-    axs.set_ylabel("Temperature, deg C")
-
-def full_animation(i, axs0, axs1, axs2, x_List, y0_List, y1_List, y2_List, ser, ser_command0, ser_command1, ser_command2):
-    animate(i, axs0, x_List, y0_List, ser, ser_command0)
-    animate(i, axs1, x_List, y1_List, ser, ser_command1)
-    animate(i, axs2, x_List, y2_List, ser, ser_command2)
+my_serial = serial.Serial(port='/dev/ttyACM0',baudrate=9600,timeout=15)
 
 class MyPlot():
+
     def __init__(self):
-        pass
+        # A figure with three subplots/axes
+        self.fig, self.axs = plt.subplots(3)
+        self.fig.set_figwidth(14)
+        self.fig.set_figheight(14)
 
-
-def animate_all_plots(i,ser, x_List,
-                      ax0, y0_List, ser_command0,
-                      ax1, y1_List, ser_command1,
-                      ax2, y2_List, ser_command2): 
-    
-    # command_to_send_in_serial should be in byte format: b'command_to_send'
-    ser.write(ser_command0)
-    y0_str = ser.readline().decode('ascii')
-
-    ser.write(ser_command1)
-    y1_str = ser.readline().decode('ascii')
-
-    ser.write(ser_command2)
-    y2_str = ser.readline().decode('ascii')
-
-    
-    # y0_str = str(random.randrange(20,40))
-    # y1_str = str(random.randrange(18,35))
-    # y2_str = str(random.randrange(15,25))
-
-    try:
-        y0_float = float(y0_str)
-        y0_List.append(y0_float)
-        print(ser_command0.decode() + " = "+ str(y0_float))
-
-        y1_float = float(y1_str)
-        y1_List.append(y1_float)
-        print(ser_command0.decode() + " = "+ str(y1_float))
+        self.tc0_data = ThermcouplePlotData(b'tc0')
+        self.tc1_data = ThermcouplePlotData(b'tc1')
+        self.tc2_data = ThermcouplePlotData(b'tc2')
+        self.x_List = []
         
-        y2_float = float(y2_str)
-        y2_List.append(y2_float)
-        print(ser_command0.decode() + " = "+ str(y2_float))
-        print("=========================")
+    def animate_all_plots(self, i, ser): 
 
-        x_List.append(i)
+        # command_to_send_in_serial should be in byte format: b'command_to_send'
+        ser.write(b'tc0')
+        y0_str = ser.readline().decode('ascii')
 
-    except:
-        print("UserExeption: convertation tc_str to float is failed")
+        ser.write(b'tc1')
+        y1_str = ser.readline().decode('ascii')
 
-    x_List = x_List[-10:]
+        ser.write(b'tc2')
+        y2_str = ser.readline().decode('ascii')
 
-    y0_List = y0_List[-10:]
-    y1_List = y1_List[-10:]
-    y2_List = y2_List[-10:]
+
+        # y0_str = str(random.randrange(20,40))
+        # y1_str = str(random.randrange(18,35))
+        # y2_str = str(random.randrange(15,25))
+
+        try:
+            y0_float = float(y0_str)
+            self.tc0_data.data_List.append(y0_float)
+            print(self.tc0_data.nameOfTC.decode() + " = "+ str(y0_float))
+
+            y1_float = float(y1_str)
+            self.tc1_data.data_List.append(y1_float)
+            print(self.tc1_data.nameOfTC.decode() + " = "+ str(y1_float))
+
+            y2_float = float(y2_str)
+            self.tc2_data.data_List.append(y2_float)
+            print(self.tc2_data.nameOfTC.decode() + " = "+ str(y2_float))
+            print("=========================")
+
+            self.x_List.append(i)
+
+        except:
+            print("UserExeption: convertation tc_str to float is failed")
+
+        self.x_List = self.x_List[-10:]
+
+        self.tc0_data.data_List = self.tc0_data.data_List[-10:]
+        self.tc1_data.data_List = self.tc1_data.data_List[-10:]
+        self.tc2_data.data_List = self.tc2_data.data_List[-10:]
+
+        self.axs[0].clear()
+        self.axs[0].plot(self.x_List, self.tc0_data.data_List)
+        self.axs[0].set_ylim(10, 55)
+
+        self.axs[1].clear()
+        self.axs[1].plot(self.x_List, self.tc1_data.data_List)
+        self.axs[1].set_ylim(10, 55)
+
+        self.axs[2].clear()
+        self.axs[2].plot(self.x_List, self.tc2_data.data_List)
+        self.axs[2].set_ylim(10, 55)
+
+        try:
+            self.axs[0].set_xlim(self.x_List[-10], (self.x_List[-10] + 10))
+            self.axs[1].set_xlim(self.x_List[-10], (self.x_List[-10] + 10))
+            self.axs[2].set_xlim(self.x_List[-10], (self.x_List[-10] + 10))
+        except:
+            self.axs[0].set_xlim(0, 10)
+            self.axs[1].set_xlim(0, 10)
+            self.axs[1].set_xlim(0, 10)
+
+        self.axs[0].set_title("Thermocouple " + ser(b'tc0'))
+        self.axs[0].set_ylabel("Temperature, deg C")
+
+        self.axs[1].set_title("Thermocouple " + ser(b'tc1'))
+        self.axs[1].set_ylabel("Temperature, deg C")
+
+        self.axs[2].set_title("Thermocouple " + ser(b'tc2'))
+        self.axs[2].set_ylabel("Temperature, deg C")
     
-    ax0.clear()
-    ax0.plot(x_List,y0_List)
-    ax0.set_ylim(10, 55)
-
-    ax1.clear()
-    ax1.plot(x_List,y1_List)
-    ax1.set_ylim(10, 55)
-
-    ax2.clear()
-    ax2.plot(x_List,y2_List)
-    ax2.set_ylim(10, 55)
-
-    try:
-        ax0.set_xlim(x_List[-10], (x_List[-10] + 10))
-        ax1.set_xlim(x_List[-10], (x_List[-10] + 10))
-        ax2.set_xlim(x_List[-10], (x_List[-10] + 10))
-    except:
-        ax0.set_xlim(0, 10)
-        ax1.set_xlim(0, 10)
-        ax2.set_xlim(0, 10)
-
-    ax0.set_title("Thermocouple " + ser_command0.decode())
-    ax0.set_ylabel("Temperature, deg C")
-
-    ax1.set_title("Thermocouple " + ser_command1.decode())
-    ax1.set_ylabel("Temperature, deg C")
-
-    ax2.set_title("Thermocouple " + ser_command2.decode())
-    ax2.set_ylabel("Temperature, deg C")
+    
+class ThermcouplePlotData():
+    def __init__(self, nameOfThermocouple):
+        self.x_List = []
+        self.data_List = []
+        self.nameOfTC = nameOfThermocouple
 
 class MyApp(tk.Tk):
 
@@ -153,6 +122,8 @@ class MyApp(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
         # tk.Tk.iconbitmap(self)
         tk.Tk.wm_title(self, "Th Con Program")
+
+        self.myPlot = MyPlot()
 
         container = tk.Frame(self)
         container.pack(side="top", fill="both", expand=True)
@@ -249,7 +220,7 @@ class PageThree(tk.Frame):
                             command=lambda: controller.show_frame(PageOne))
         button3.pack()
         
-        canvas = FigureCanvasTkAgg(fig, self)
+        canvas = FigureCanvasTkAgg(controller.myPlot.fig, self)
         canvas.draw()
         canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
  
@@ -262,12 +233,45 @@ MAX_FRAMES = 60
 
 # ani_1 = animation.FuncAnimation(fig, full_animation, frames=100, fargs=(axs[0], axs[1], x_List, y0_List, y1_List, y2_List ser, b'tc0', b'tc1', b'tc2'), interval=1000) #, save_count=MAX_FRAMES
 
-ani = animation.FuncAnimation(fig, animate_all_plots, frames=100, fargs=(ser, x_List,
-                                                                         axs[0], y0_List, b'tc0',
-                                                                         axs[1], y1_List, b'tc1',
-                                                                         axs[2], y2_List, b'tc2',), interval=1000)
+ani = animation.FuncAnimation(app.myPlot.fig, app.myPlot.animate_all_plots, frames=100, fargs=(my_serial))
 app.mainloop()
-ser.close()
+my_serial.close()
 print("Serial is closed")
 
 
+# def animate(i,axs, x_List, y_List, ser, command_to_send_in_serial): 
+    #     # command_to_send_in_serial should be in byte format: (a_tc, y_tc_List, b'command_to_send', ser)
+    #     ser.write(command_to_send_in_serial)
+    #     aData_str = ser.readline().decode('ascii')
+    #     # aData_str = str(random.randrange(20,40))
+
+    #     try:
+    #         aData_float = float(aData_str)
+    #         y_List.append(aData_float)
+    #         print(command_to_send_in_serial.decode() + " = "+ str(aData_float))
+    #         # TODO:Check append(i) in first time
+    #         if (i > 0):
+    #             if (x_List[-1] != i):
+    #                 x_List.append(i)
+
+    #     except:
+    #         print("UserExeption: convertation tc_str to float is failed")
+
+    #     y_List = y_List[-10:]
+    #     x_List = x_List[-10:]
+
+    #     axs.clear()
+    #     axs.plot(x_List,y_List) #xList,
+    #     axs.set_ylim(15, 45)
+    #     try:
+    #         axs.set_xlim(x_List[-10], (x_List[-10] + 10))
+    #     except:
+    #         axs.set_xlim(0, 10)
+
+    #     axs.set_title("Thermocouple " + command_to_send_in_serial.decode())
+    #     axs.set_ylabel("Temperature, deg C")
+    
+    # def full_animation(i, axs0, axs1, axs2, x_List, y0_List, y1_List, y2_List, ser, ser_command0, ser_command1, ser_command2):
+    #     animate(i, axs0, x_List, y0_List, ser, ser_command0)
+    #     animate(i, axs1, x_List, y1_List, ser, ser_command1)
+    #     animate(i, axs2, x_List, y2_List, ser, ser_command2)

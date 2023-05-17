@@ -20,37 +20,39 @@ LARGE_FONT = ("Verdana", 18)
 style.use("ggplot")# ggplot, dark_background
 
 f_tc0 = Figure(figsize=(5,5), dpi=100)
+
 a_tc0 = f_tc0.add_subplot(111)
 
 xList = []
 xList.append(int(0))
+
 y_tc0_List = []
 
-dataList = []
 ser = serial.Serial('/dev/ttyACM0',9600)
 
-def animate(i, dataList, ser):
-    ser.write(b'tc0')
-    arduinoData_tc0_string = ser.readline().decode('ascii')
+def animate_tc(i,a_tc, y_tc_List, command_to_send_in_serial, ser): 
+    # command_to_send_in_serial should be in byte format: (a_tc, y_tc_List, b'command_to_send', ser)
+    ser.write(command_to_send_in_serial)
+    arduinoData_string = ser.readline().decode('ascii')
 
     try:
-        arduinoData_tc0_float = float(arduinoData_tc0_string)
-        dataList.append(arduinoData_tc0_float)
+        arduinoData_float = float(arduinoData_string)
+        y_tc0_List.append(arduinoData_float)
+        print(command_to_send_in_serial.decode() + " = "+ str(arduinoData_float))
         # newX = xList[-1] + 1
         # xList.append(newX)
 
     except:
-        pass
+        print("UserExeption: convertation tc_str to float is failed")
 
-    dataList = dataList[-10:]
+    y_tc_List = y_tc_List[-10:]
     # xList = xList[-10:]
     
-    a_tc0.clear()
-    a_tc0.plot(dataList) #xList,
-
-    a_tc0.set_ylim(15, 45)
-    a_tc0.set_title("Thermocouple 0")
-    a_tc0.set_ylabel("Temperature, deg C")
+    a_tc.clear()
+    a_tc.plot(y_tc_List) #xList,
+    a_tc.set_ylim(15, 45)
+    a_tc.set_title("Thermocouple " + command_to_send_in_serial.decode())
+    a_tc.set_ylabel("Temperature, deg C")
 
 
 class MyApp(tk.Tk):
@@ -155,15 +157,15 @@ class PageThree(tk.Frame):
         button3.pack()
         print("Page Three init")
 
-        canvas = FigureCanvasTkAgg(f_tc0, self)
-        canvas.draw()
-        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        canvas_tc0 = FigureCanvasTkAgg(f_tc0, self)
+        canvas_tc0.draw()
+        canvas_tc0.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         print("Page Three is initted")
 
 
 app = MyApp()
 MAX_FRAMES = 60
-ani = animation.FuncAnimation(f_tc0, animate, frames=100, fargs=(dataList, ser), interval=1000) #, save_count=MAX_FRAMES
+ani_tc0 = animation.FuncAnimation(f_tc0, animate_tc, frames=100, fargs=(a_tc0, y_tc0_List, b'tc0', ser), interval=1000) #, save_count=MAX_FRAMES
 app.mainloop()
 ser.close()
 

@@ -23,16 +23,19 @@ style.use("ggplot")# ggplot, dark_background
 
 fig_tc0 = Figure(figsize=(5,5), dpi=100)
 ax_tc0 = fig_tc0.add_subplot(111)
-x_List = []
 # xList.append(int(0))
 y_tc0_List = []
 
 # Some example data to display
 x = np.linspace(0, 2*np.pi, 400)
 y = np.sin(x**2)
-# A figure with just one subplot
-fig, ax = plt.subplots()
-y_List = []
+
+# A figure with two subplots
+fig, axs = plt.subplots(2)
+x0_List = []
+x1_List = []
+y0_List = []
+y1_List = []
 # ax.plot(x, y)
 # ax.set_title("A single plot")
 
@@ -73,38 +76,9 @@ def animate(i,axs, x_List, y_List, ser, command_to_send_in_serial):
     axs.set_title("Thermocouple " + command_to_send_in_serial.decode())
     axs.set_ylabel("Temperature, deg C")
 
-def animate_tc(i,axs, y_List, command_to_send_in_serial, ser): 
-    # command_to_send_in_serial should be in byte format: (a_tc, y_tc_List, b'command_to_send', ser)
-    ser.write(command_to_send_in_serial)
-    arduinoData_string = ser.readline().decode('ascii')
-
-    try:
-        arduinoData_float = float(arduinoData_string)
-        y_List.append(arduinoData_float)
-        print(command_to_send_in_serial.decode() + " = "+ str(arduinoData_float))
-        # newX = xList[-1] + 1
-        # x_List.append(i)
-
-    except:
-        print("UserExeption: convertation tc_str to float is failed")
-
-    y_List = y_List[-10:]
-    # x_List = x_List[-10:]
-
-    axs.clear()
-    axs.plot(y_List) #xList,
-    axs.set_ylim(15, 45)
-    axs.set_title("Thermocouple " + command_to_send_in_serial.decode())
-    axs.set_ylabel("Temperature, deg C")
-    
-    
-    # a_tc.clear()
-    # a_tc.plot(y_tc_List) #xList,
-    # a_tc.set_ylim(15, 45)
-    # a_tc.set_title("Thermocouple " + command_to_send_in_serial.decode())
-    # a_tc.set_ylabel("Temperature, deg C")
-
-
+def full_animation(i, axs1, axs2, x_List1, x_List2, y_List1, y_List2, ser, command1_to_send_in_serial, command2_to_send_in_serial):
+    animate(i,axs1, x_List1, y_List1, ser, command1_to_send_in_serial)
+    animate(i,axs2, x_List2, y_List2, ser, command2_to_send_in_serial)
 class MyApp(tk.Tk):
 
     def __init__(self, *args, **kwargs):
@@ -216,7 +190,8 @@ class PageThree(tk.Frame):
 
 app = MyApp()
 MAX_FRAMES = 60
-ani = animation.FuncAnimation(fig, animate, frames=100, fargs=(ax, x_List, y_List, ser, b'tc0'), interval=1000) #, save_count=MAX_FRAMES
+# ani_0 = animation.FuncAnimation(fig, animate, frames=100, fargs=(axs[0], x0_List, y0_List, ser, b'tc0'), interval=1000) #, save_count=MAX_FRAMES
+ani_1 = animation.FuncAnimation(fig, full_animation, frames=100, fargs=(axs[0], axs[1], x0_List, x1_List, y0_List, y1_List, ser, b'tc0', b'tc1'), interval=1000) #, save_count=MAX_FRAMES
 app.mainloop()
 ser.close()
 print("Serial is closed")

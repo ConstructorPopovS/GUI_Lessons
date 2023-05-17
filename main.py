@@ -34,41 +34,21 @@ axs[1].set_title("Thermocouple tc1")
 axs[2].set_title("Thermocouple tc2")
 # axs.set_ylabel("Temperature, deg C")
 
-ser = serial.Serial(port='/dev/ttyACM0',baudrate=9600,timeout=15)
-
-class ThermcouplePlotData():
-    def __init__(self, name): #tcData.name should be in byte format: b'name'
-        self.x_List = []
-        self.y_List = []
-        self.name = name
-
-
-
-def full_animation(i, axs, controller, ser):
-    if(controller.doAnimation == True):
-        AnimationFunc.animate(i, axs[0], controller.tcData0, ser)
-        AnimationFunc.animate(i, axs[1], controller.tcData1, ser)
-        AnimationFunc.animate(i, axs[2], controller.tcData2, ser)
-        print("============================")
-    else:
-        print("Value controller.doAnimation = " + str(controller.doAnimation))
-
 def confirm(root):
     answer = askyesno(title='Exit', message='Do You Want To Exit?')
     if answer:
-        ser.close()
+        root.data_reader.close()
         print("Serial is closed from confirm()")
         root.destroy()
 
 def startAnimation(controller):
-    print("Was: " + str(controller.doAnimation))
-    controller.doAnimation = True
-    print("Setted: " +str(controller.doAnimation))
+    # controller.doAnimation = True
+    controller.animation.resume()
 
 def stopAnimation(controller):
-    print("Was: " + str(controller.doAnimation))
-    controller.doAnimation = False
-    print("Setted: " +str(controller.doAnimation))
+    # controller.doAnimation = False
+    controller.animation.pause()
+    
 
 class MyApp(tk.Tk):
 
@@ -82,7 +62,7 @@ class MyApp(tk.Tk):
         self.tc0_list = []
         self.tc1_list = []
         self.tc2_list = []
-        self.doAnimation = False
+        self.doAnimation = True
 
         container = tk.Frame(self)
         container.pack(side="top", fill="both", expand=True)
@@ -98,6 +78,11 @@ class MyApp(tk.Tk):
             frame.grid(row=0, column=0, sticky="nsew")
 
         self.show_frame(PageThree)
+
+        self.animation = animation.FuncAnimation(fig, AnimationFunc.animate, frames=100, fargs=(axs, self), interval=1000)
+        # print("Hm1")
+        self.animation.pause()
+        # print("Hm2")
 
     def show_frame(self, cont):
         frame = self.frames[cont]
@@ -197,17 +182,10 @@ class PageThree(tk.Frame):
 
 app = MyApp()
 MAX_FRAMES = 60
-# ani_0 = animation.FuncAnimation(fig, animate, frames=100, fargs=(axs[0], x_List, y0_List, ser, b'tc0'), interval=1000) #, save_count=MAX_FRAMES
+stopAnimation(app)
 
-# ani = animation.FuncAnimation(fig, full_animation, frames=100, fargs=(axs, app, ser), interval=1000) #, save_count=MAX_FRAMES
-
-# ani = animation.FuncAnimation(fig, animate_all_plots, frames=100, fargs=(ser, x_List,
-#                                                                          axs[0], y0_List, b'tc0',
-#                                                                          axs[1], y1_List, b'tc1',
-#                                                                          axs[2], y2_List, b'tc2',), interval=1000)
-ani = animation.FuncAnimation(fig, AnimationFunc.animate, frames=100, fargs=(axs, app), interval=1000)
 app.mainloop()
-ser.close()
+# ser.close()
 print("Serial is closed")
 
 

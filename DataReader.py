@@ -30,3 +30,6 @@ class DataReader():
     def read_tc2(self):
         value = self.__read(self.NameTC[2])
         return value
+
+    def close(self):
+        self.ser.colse()

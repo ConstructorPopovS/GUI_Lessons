@@ -59,7 +59,7 @@ class AnimationApp():
             dataRow.append(number_of_measurement)
 
             # Display the updated number of measurement count
-            print('\r{:6d}'.format(number_of_measurement, end=''))
+            print('\r{:6d}'.format(number_of_measurement), end='')
 
             sample_time = time.perf_counter()
             sample_time_from_start = sample_time - self.start_time
@@ -77,7 +77,7 @@ class AnimationApp():
 
             new_tc2_value = self.data_reader.read_tc2()
             dataRow.append(new_tc2_value)
-            print('{:12.2f} C'.format(new_tc2_value), end='')
+            print('{:12.2f} C'.format(new_tc2_value), end='', flush=True)
 
             self.tc0_list.append(new_tc0_value)
             self.tc1_list.append(new_tc1_value)

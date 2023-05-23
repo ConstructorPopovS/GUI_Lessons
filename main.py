@@ -20,10 +20,29 @@ import DataReader
 LARGE_FONT = ("Verdana", 20)
 style.use("ggplot")# ggplot, dark_background
 
+# WAY 1======================================================
+# S: fore some reason this way to create a list of axes blocked correct closing of the program
+# --------------------------------------
 # A figure with three subplots/axes
 fig, axs = plt.subplots(3)
-fig.set_figwidth(14)
-fig.set_figheight(14)
+fig.set_figwidth(10)
+fig.set_figheight(10)
+# --------------------------------------
+# ===========================================================
+
+# WAY2======================================================
+# fig = Figure(figsize=(10,10), dpi=100)
+
+# add_subplot(rows, cols, index_of_this_subplot)
+# axs0 = fig.add_subplot(311)
+# axs1 = fig.add_subplot(312)
+# axs2 = fig.add_subplot(313)
+# axs = [axs0, axs1, axs2]
+# axs = []
+# axs.append(fig.add_subplot(311))
+# axs.append(fig.add_subplot(312))
+# axs.append(fig.add_subplot(313))
+# ===========================================================
 
 axs[0].set_title("Thermocouple tc0")
 # axs.set_ylabel("Temperature, deg C")
@@ -168,10 +187,6 @@ class PageThree(tk.Frame):
         button3 = tk.Button(self, text="Stop Animation", font = LARGE_FONT,
                             command=lambda: stopAnimation(controller))
         button3.pack()
-
-        button4 = tk.Button(self, text="Print last value of tc0", font = LARGE_FONT,
-                            command=lambda: print(controller.tcData0.y_List[-1]))
-        button4.pack()
         
         canvas = FigureCanvasTkAgg(fig, self)
         canvas.draw()

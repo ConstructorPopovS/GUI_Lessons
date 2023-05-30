@@ -13,31 +13,32 @@ import tkinter as tk
 from tkinter.messagebox import askyesno 
 import serial
 import random
+import time
 
-import AnimationFunc
+import AnimationApp
 import DataReader
 
-LARGE_FONT = ("Verdana", 20)
+LARGE_FONT = ("Verdana", 16)
 style.use("ggplot")# ggplot, dark_background
 
 # WAY 1======================================================
-# S: fore some reason this way to create a list of axes blocked correct closing of the program
+# S: fore some reason this way to create a list of axes blocks correct closing of the program
 # --------------------------------------
 # A figure with three subplots/axes
-fig, axs = plt.subplots(3)
-fig.set_figwidth(10)
-fig.set_figheight(10)
+# fig, axs = plt.subplots(3)
+# fig.set_figwidth(10)
+# fig.set_figheight(10)
 # --------------------------------------
 # ===========================================================
 
 # WAY2======================================================
-# fig = Figure(figsize=(10,10), dpi=100)
+# S: add_subplot(rows, cols, index_of_this_subplot)
+fig = Figure(figsize=(10,5), dpi=100)
 
-# add_subplot(rows, cols, index_of_this_subplot)
-# axs0 = fig.add_subplot(311)
-# axs1 = fig.add_subplot(312)
-# axs2 = fig.add_subplot(313)
-# axs = [axs0, axs1, axs2]
+axs0 = fig.add_subplot(311)
+axs1 = fig.add_subplot(312)
+axs2 = fig.add_subplot(313)
+axs = [axs0, axs1, axs2]
 # axs = []
 # axs.append(fig.add_subplot(311))
 # axs.append(fig.add_subplot(312))
@@ -60,13 +61,23 @@ def confirm(root):
         print("Serial is closed from confirm()")
         root.destroy()
 
-def startAnimation(controller):
-    # controller.doAnimation = True
-    controller.animation.resume()
+# def startAnimation(controller):
+#     controller.doAnimation = True
+#     # controller.animation = animation.FuncAnimation(fig, AnimationFunc.animate, frames=100, fargs=(axs, controller), interval=1000)
+#     try:
+#         pass
+#         controller.animation.resume()
+#     except:
+#         pass
 
-def stopAnimation(controller):
-    # controller.doAnimation = False
-    controller.animation.pause()
+# def stopAnimation(controller):
+#     controller.doAnimation = False
+#     try:
+#         controller.animation.pause()
+#         print("Stop")
+#         # del controller.animation
+#     except:
+#         pass
     
 
 class MyApp(tk.Tk):
@@ -81,7 +92,7 @@ class MyApp(tk.Tk):
         self.tc0_list = []
         self.tc1_list = []
         self.tc2_list = []
-        self.doAnimation = True
+        self.doAnimation = False
 
         container = tk.Frame(self)
         container.pack(side="top", fill="both", expand=True)
@@ -98,14 +109,18 @@ class MyApp(tk.Tk):
 
         self.show_frame(PageThree)
 
-        self.animation = animation.FuncAnimation(fig, AnimationFunc.animate, frames=100, fargs=(axs, self), interval=1000)
+        # self.animation = None
+        # self.animation = animation.FuncAnimation(fig, AnimationApp.animate, frames=100, fargs=(axs, self), interval=1000)
+        self.animationApp = AnimationApp.AnimationApp(fig, axs, self)
+        # time.sleep(5)
         # print("Hm1")
-        self.animation.pause()
+        # stopAnimation(self)
         # print("Hm2")
 
     def show_frame(self, cont):
         frame = self.frames[cont]
         frame.tkraise()
+    
     
 
 class StartPage(tk.Frame):
@@ -179,25 +194,23 @@ class PageThree(tk.Frame):
         # button2 = tk.Button(self, text="Visit page One", font = LARGE_FONT,
         #                     command=lambda: controller.show_frame(PageOne))
         button2 = tk.Button(self, text="Start Animation", font = LARGE_FONT,
-                            command=lambda: startAnimation(controller))
+                            command=lambda: controller.animationApp.resumeAnimation())
         button2.pack()
 
         # button3 = tk.Button(self, text="Visit page Two", font = LARGE_FONT,
         #                     command=lambda: controller.show_frame(PageOne))
         button3 = tk.Button(self, text="Stop Animation", font = LARGE_FONT,
-                            command=lambda: stopAnimation(controller))
+                            command=lambda: controller.animationApp.stopAnimation())
         button3.pack()
         
-        canvas = FigureCanvasTkAgg(fig, self)
-        canvas.draw()
-        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        self.canvas = FigureCanvasTkAgg(fig, self)
+        self.canvas.draw()
+        self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
  
         print("Page Three is initted")
-
+    
 
 app = MyApp()
-MAX_FRAMES = 60
-stopAnimation(app)
 
 app.mainloop()
 # ser.close()

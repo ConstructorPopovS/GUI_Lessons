@@ -1,15 +1,16 @@
 import serial
+import random
 
 class DataReader():
     def __init__(self) -> None:
-        self.ser = serial.Serial(port='/dev/ttyACM0',baudrate=9600,timeout=15)
+        # self.ser = serial.Serial(port='COM12',baudrate=9600,timeout=15)#COM12, /dev/ttyACM0
         self.NameTC = [b'tc0', b'tc1', b'tc2']
         
 
     def __read(self, name):
-        self.ser.write(name)
+        # self.ser.write(name)
         aData_str = "0"
-        aData_str = self.ser.readline().decode('ascii')
+        aData_str = random.randrange(20, 40) #self.ser.readline().decode('ascii')
         # aData_str = str(random.randrange(20,40))
 
         try:
@@ -32,4 +33,4 @@ class DataReader():
         return value
 
     def close(self):
-        self.ser.colse()
+        pass# self.ser.colse()

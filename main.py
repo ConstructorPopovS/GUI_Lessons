@@ -44,6 +44,7 @@ class MyApp(tk.Tk):
         # tk.Tk.iconbitmap(self)
         tk.Tk.wm_title(self, "Thermal Conductivity Measurement Program")
 
+        # Creating a frame on the window to put all frames-pages in it
         container = tk.Frame(self)
         container.pack(side="top", fill="both", expand=True)
         container.grid_rowconfigure(0, weight=1)

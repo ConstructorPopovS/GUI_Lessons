@@ -46,13 +46,13 @@ class AnimationApp():
         # S: csv.writer(file=, delimeter=, dialect='excel-tab') 
         #    I dont understad on practice what the 'dialect' argument adding changes...
         self.writer = csv.writer(self.data_file, delimiter=',')
+
          # Creating the header row for data table:
         dataHeader = []
         dataHeader.append("Sample")
         dataHeader.append("Time")
-            
-        channels = (0, 1, 2)
-        for channel in channels:
+        
+        for channel in (0, 1, 2):
             dataHeader.append("Channel" + str(channel))
             
         # Writeing dataHeader to file
@@ -95,11 +95,11 @@ class AnimationApp():
             self.writer.writerow(dataRow)
 
             # Printing dataRow to console
-            print('\r{:12}'.format(number_of_measurement), end='')
-            print('{:12.2f} s'.format(sample_time_from_start), end='')
-            print('{:12.2f} C'.format(new_tc0_value), end='')
-            print('{:12.2f} C'.format(new_tc1_value), end='')
-            print('{:12.2f} C'.format(new_tc2_value), end='', flush=True)
+            print('\r{:6}'.format(number_of_measurement), end='')
+            print('{:10.2f} s '.format(sample_time_from_start), end='')
+            print('{:10.2f} C'.format(new_tc0_value), end='')
+            print('{:10.2f} C'.format(new_tc1_value), end='')
+            print('{:10.2f} C'.format(new_tc2_value), end='', flush=True)
 
             # Adding new data to the y_lists of the axes
             self.tc0_list.append(new_tc0_value)

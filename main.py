@@ -1,37 +1,39 @@
-# lesson from youtube "Live Maplotlib Graph in Tkinter Window in Python3 - Tkinter tutorial Python 3.4p.7"
-from tkinter.messagebox import askyesno
-# , NavigationToolbar2TkAgg
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import DataReader
-import AnimationApp
-import time
-import random
-import serial
+# EXTERNAL PACKAGES:
+# GUI lib for Python - "tkinter"
 import tkinter as tk
-import matplotlib.pyplot as plt
-from matplotlib import style
-import matplotlib.animation as animation
-from matplotlib.figure import Figure
+from tkinter.messagebox import askyesno
+
+# To create plot/plots
 import matplotlib
-matplotlib.use("TkAgg")
+# To change style of plots
+from matplotlib import style
+# To create Figure and add axes on it
+from matplotlib.figure import Figure
+# To create FigureCanvas and grid the Figure as tk widget
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg # , NavigationToolbar2TkAgg
+import matplotlib.pyplot as plt #TODO: check do I need it
 # S: I have made additional installations:
 #  sudo apt-get install python3-pill.imagetk
 #  sudo pip install ipython
 
+# INTERNAL PACKAGES:
+import AnimationApp
+
+
+# S: Some settings as shown on: 
+# "How to add a Matplotlib Graph to Tkinter Window in Python 3 - Tkinter tutorial Python 3.4 p. 6"
+# https://www.youtube.com/watch?v=Zw6M-BnAPP0&list=PLQVvvaa0QuDclKx-QpC9wntnURXVJqLyk&index=6
+matplotlib.use("TkAgg")
 
 LARGE_FONT = ("Verdana", 12)
 style.use("ggplot")  # ggplot, dark_background
 
-# WAY2======================================================
-# S: add_subplot(rows, cols, index_of_this_subplot)
 fig = Figure(tight_layout=True, dpi=100,)  # figsize=(9, 6), tight_layout=True
-
+# S: add_subplot(rows, cols, index_of_this_subplot)
 axs0 = fig.add_subplot(311)
 axs1 = fig.add_subplot(312)
 axs2 = fig.add_subplot(313)
 axs = [axs0, axs1, axs2]
-
-# ===========================================================
 
 axs[0].set_title("Thermocouple tc0")
 axs[1].set_title("Thermocouple tc1")
@@ -40,15 +42,6 @@ axs[2].set_title("Thermocouple tc2")
 axs[0].set_ylabel("T, deg C")
 axs[1].set_ylabel("T, deg C")
 axs[2].set_ylabel("T, deg C")
-
-
-def confirm(root):
-    answer = askyesno(title='Exit', message='Do You Want To Exit?')
-    if answer:
-        root.data_reader.close()
-        print("Serial is closed from confirm()")
-        root.destroy()
-
 
 class MyApp(tk.Tk):
 
@@ -66,14 +59,14 @@ class MyApp(tk.Tk):
         #    Details on the lesson "Multiple Windows/Frames in Tkinter GUI with Python - Tkinter tutorial Python 3.4 p. 4"
         #    https://www.youtube.com/watch?v=jBUpjijYtCk&list=PLQVvvaa0QuDclKx-QpC9wntnURXVJqLyk&index=4
         self.frames = {}
-        for F in (PageThree,):
+        for F in (MainPageGUI,):
             frame = F(master=container, controller=self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew", )
             frame.grid_rowconfigure(0, weight=1)
             frame.grid_columnconfigure(0, weight=1)
 
-        self.show_frame(PageThree)
+        self.show_frame(MainPageGUI)
 
         # S: This variable MUST be at the end of this __init__()
         self.animationApp = AnimationApp.AnimationApp(fig, axs, self)
@@ -82,8 +75,7 @@ class MyApp(tk.Tk):
         frame = self.frames[cont]
         frame.tkraise()
 
-
-class PageThree(tk.Frame):
+class MainPageGUI(tk.Frame):
     def __init__(self, master, controller):
         tk.Frame.__init__(self, master=master)
 
@@ -92,6 +84,9 @@ class PageThree(tk.Frame):
         self.grid_rowconfigure(index=2, weight=1)
         self.grid_rowconfigure(index=3, weight=1)
         self.grid_rowconfigure(index=4, weight=0)
+        self.grid_rowconfigure(index=5, weight=0)
+        self.grid_rowconfigure(index=6, weight=0)
+        self.grid_rowconfigure(index=7, weight=0)
 
         self.grid_columnconfigure(index=0, weight=0)
         self.grid_columnconfigure(index=1, weight=1)
@@ -185,8 +180,7 @@ class PageThree(tk.Frame):
         entry_delay_between_measurements.grid(row=2, column=1, sticky="ew")
         # /////////////////////////////////////////////////////////////////////////
 
-        # /////////////////////////////////////////////////////////////////////////
-        # 3. Frame "Experiment results"
+        # 3. Frame "Experiment results"////////////////////////////////////////////
         frame_experiment_results = tk.Frame(master=self,
                                             borderwidth=5, relief="groove")
         frame_experiment_results.grid(
@@ -225,28 +219,31 @@ class PageThree(tk.Frame):
         button_start_animation = tk.Button(master=self,
                                            text="Start Animation", font=LARGE_FONT,
                                            command=lambda: controller.animationApp.start())
-        button_start_animation.grid(
-            row=4, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+        button_start_animation.grid(row=4, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 
         button_pause_animation = tk.Button(master=self,
                                            text="Pause Animation", font=LARGE_FONT,
                                            command=lambda: controller.animationApp.pause())
-        button_pause_animation.grid(
-            row=5, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+        button_pause_animation.grid(row=5, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 
         button_resume_animation = tk.Button(master=self,
                                             text="Resume Animation", font=LARGE_FONT,
                                             command=lambda: controller.animationApp.resume())
-        button_resume_animation.grid(
-            row=6, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+        button_resume_animation.grid(row=6, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 
         button_finish_animation = tk.Button(master=self,
                                             text="Finish Animation", font=LARGE_FONT,
                                             command=lambda: controller.animationApp.finish())
-        button_finish_animation.grid(
-            row=5, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+        button_finish_animation.grid(row=7, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 
         print("Page Three is initted")
+
+def confirm(root):
+    answer = askyesno(title='Exit', message='Do You Want To Exit?')
+    if answer:
+        root.data_reader.close()
+        print("Serial is closed from confirm()")
+        root.destroy()
 
 
 app = MyApp()

@@ -1,7 +1,7 @@
 import matplotlib.animation as animation
-import DataReader
 import csv #for saving data in csv format file
 import time #for saving time of each measurement
+import DataReader
 
 class AnimationApp():
 
@@ -9,15 +9,26 @@ class AnimationApp():
 
         self.data_reader = DataReader.DataReader()
 
+        # Lists for plot axes
         self.x_list = []
         self.tc0_list = []
         self.tc1_list = []
         self.tc2_list = []
 
+        # Sample settings
+        self._sample_height = 9.8 # in mm
+
+        # Experiment settings
+        self._name_of_file = "new_data_file"
+        self._number_of_measurements = 120
+        self._delay_between_measurements = 0.9 # in seconds
+
+        # Experiment results
+        self._some_result = 10 # S: just to mark that here will be some calculated values
+
         self.animation_need_init_function_flag = True
         self.data_file = None
         self.writer = None
-        self.name_of_file = "new_data_file"
 
         self.start_time = float(0.0)
         
@@ -30,22 +41,28 @@ class AnimationApp():
             if (self.animation_need_init_function_flag == True):
                 self.animation_need_init_function_flag = False
 
-                self.data_file = open("Some_File.txt", 'w')
+                name_of_file = self._name_of_file + ".txt"
+                self.data_file = open(name_of_file, 'w')
                 self.writer = csv.writer(self.data_file)
                 print("File is created")
 
                 channels = (0, 1, 2)
 
                 # Display the header row for data table:
-                dataHeader = "    Sample,    "
-                dataHeader += "  Time,    "
+                dataHeader = []
+                dataHeader.append("Sample")
+                dataHeader.append("Time")
                 for channel in channels:
-                    dataHeader += " Channel" + str(channel) + ","
+                    dataHeader.append("Channel" + str(channel))
                 
-                self.start_time = time.perf_counter()
+                # print(dataHeader)
+                # self.data_file.write(dataHeader + '\n')
+                self.writer.writerow(dataHeader)
+                for head in dataHeader:
+                    print(f'{head:20}', end='')
+                print()
 
-                print(dataHeader)
-                self.data_file.write(dataHeader + '\n')
+                self.start_time = time.perf_counter()
 
             number_of_measurement = None
             try:
@@ -59,7 +76,7 @@ class AnimationApp():
             dataRow.append(number_of_measurement)
 
             # Display the updated number of measurement count
-            print('\r{:6d}'.format(number_of_measurement), end='')
+            print('\r{:6}'.format(number_of_measurement), end='')
 
             sample_time = time.perf_counter()
             sample_time_from_start = sample_time - self.start_time
@@ -117,8 +134,36 @@ class AnimationApp():
             # 
         # print("Animation_flag is: " + str(self.doAnimation_flag))
 
-    def start(self):
+    def start(self, 
+            #   Sample settings
+              sample_height,
+            #   Experiental settings
+              name_of_file, number_of_measurements, delay_between_measurements):
         print("Start")
+        try:
+            self._sample_height = float(sample_height)
+        except:
+            self._sample_height = 10
+            print("MyExeption: AnimationApp.py <Convertation sample_height to float is failed>")
+
+        self._name_of_file = name_of_file
+        try:
+            self._number_of_measurements = int(number_of_measurements)
+        except:
+            self._number_of_measurements = 10
+            print("MyExeption: AnimationApp.py <Convertation number_of_measurement to int is failed>")
+        try:
+            self._delay_between_measurements = float(delay_between_measurements)
+        except:
+            self._delay_between_measurements = 0.5
+            print("MyExeption: AnimationApp.py <Convertation delay_between_measurement to float is failed>")
+        
+        print('h:{0} name:{1} number:{2} delay:{3}'.format(self._sample_height,
+                                                   self._name_of_file,
+                                                   self._number_of_measurements,
+                                                   self._delay_between_measurements))
+
+
         self.doAnimation_flag = True
         self.animation_need_init_function_flag = True
         try:
@@ -150,5 +195,14 @@ class AnimationApp():
         except:
             pass
 
+    def get_sample_height(self):
+        return self._sample_height
+    
     def get_name_of_file(self):
-        return self.name_of_file
+        return self._name_of_file
+    
+    def get_number_of_measurements(self):
+        return self._number_of_measurements
+    
+    def get_delay_between_measurements(self):
+        return self._delay_between_measurements

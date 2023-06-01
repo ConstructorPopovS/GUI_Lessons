@@ -1,14 +1,10 @@
-# EXTERNAL PACKAGES:
 # GUI lib for Python - "tkinter"
 import tkinter as tk
 from tkinter.messagebox import askyesno
 
-# To create plot/plots
-import matplotlib
-# To change style of plots
-from matplotlib import style
-# To create Figure and add axes on it
-from matplotlib.figure import Figure
+import matplotlib # To create plot/plots
+from matplotlib import style # To change style of plots
+from matplotlib.figure import Figure # To create Figure and add axes on it
 # To create FigureCanvas and grid the Figure as tk widget
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg # , NavigationToolbar2TkAgg
 import matplotlib.pyplot as plt #TODO: check do I need it
@@ -16,9 +12,7 @@ import matplotlib.pyplot as plt #TODO: check do I need it
 #  sudo apt-get install python3-pill.imagetk
 #  sudo pip install ipython
 
-# INTERNAL PACKAGES:
 import AnimationApp
-
 
 # S: Some settings as shown on: 
 # "How to add a Matplotlib Graph to Tkinter Window in Python 3 - Tkinter tutorial Python 3.4 p. 6"
@@ -70,29 +64,45 @@ class MyApp(tk.Tk):
 
         # S: This variable MUST be at the end of this __init__()
         self.animationApp = AnimationApp.AnimationApp(fig, axs, self)
+        self.set_default_settings_in_entries()
 
     def show_frame(self, cont):
         frame = self.frames[cont]
         frame.tkraise()
+    
+    def set_default_settings_in_entries(self):
+        self.frames[MainPageGUI].entry_name_of_experiment.insert(0, "GX16_2mm_bore5mm_01")
+        # Sample settings
+        self.frames[MainPageGUI].entry_h.insert(0, "9.8")
+        # # Experiment settings
+        self.frames[MainPageGUI].entry_quantity_of_measurements.insert(0, 50)
+        self.frames[MainPageGUI].entry_delay_between_measurements.insert(0, 0.9)
+
 
 class MainPageGUI(tk.Frame):
     def __init__(self, master, controller):
         tk.Frame.__init__(self, master=master)
 
-        self.grid_rowconfigure(index=0, weight=0)
-        self.grid_rowconfigure(index=1, weight=1)
-        self.grid_rowconfigure(index=2, weight=1)
-        self.grid_rowconfigure(index=3, weight=1)
-        self.grid_rowconfigure(index=4, weight=0)
-        self.grid_rowconfigure(index=5, weight=0)
-        self.grid_rowconfigure(index=6, weight=0)
-        self.grid_rowconfigure(index=7, weight=0)
+        # Frame for all elements XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        frame_for_all_elements = tk.Frame(master=self,
+                                                  borderwidth=5, relief="groove")
+        frame_for_all_elements.grid(row=0, column=0,columnspan=2, sticky="nsew", padx=5, pady=5)
 
-        self.grid_columnconfigure(index=0, weight=0)
-        self.grid_columnconfigure(index=1, weight=1)
+        frame_for_all_elements.grid_rowconfigure(index=0, weight=0)
+        frame_for_all_elements.grid_rowconfigure(index=1, weight=1)
+        frame_for_all_elements.grid_rowconfigure(index=2, weight=1)
+        frame_for_all_elements.grid_rowconfigure(index=3, weight=1)
+        frame_for_all_elements.grid_rowconfigure(index=4, weight=0)
+        frame_for_all_elements.grid_rowconfigure(index=5, weight=0)
+        frame_for_all_elements.grid_rowconfigure(index=6, weight=0)
+        frame_for_all_elements.grid_rowconfigure(index=7, weight=0)
+
+        frame_for_all_elements.grid_columnconfigure(index=0, weight=0)
+        frame_for_all_elements.grid_columnconfigure(index=1, weight=1)
+        # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
         # 0.Frame for name of the experiment (and name of the file to write data in)////
-        frame_entry_name_of_experiment = tk.Frame(master=self,
+        frame_entry_name_of_experiment = tk.Frame(master=frame_for_all_elements,
                                                   borderwidth=5, relief="groove")
         frame_entry_name_of_experiment.grid(
             row=0, column=0, columnspan=2, sticky="ew", padx=5, pady=5)
@@ -105,17 +115,13 @@ class MainPageGUI(tk.Frame):
                                                   text="Name of the experiment:", font=LARGE_FONT,
                                                   anchor="e")
         label_entry_name_of_experiment.grid(row=0, column=0)  # sticky="ew"s
-        entry_name_of_experiment = tk.Entry(master=frame_entry_name_of_experiment,
+        self.entry_name_of_experiment = tk.Entry(master=frame_entry_name_of_experiment,
                                             width=60, font=LARGE_FONT)
-        entry_name_of_experiment.grid(row=0, column=1, sticky="ew", pady=5)
-
-        # text = controller.animationApp.get_name_of_file()
-        # entry_name_of_experiment.insert(0, text)
+        self.entry_name_of_experiment.grid(row=0, column=1, sticky="ew", pady=5, padx=5)
         # /////////////////////////////////////////////////////////////////////////
 
-        # 
         # 1. Frame "Sample settings" //////////////////////////////////////////////
-        frame_sample_settings = tk.Frame(master=self,
+        frame_sample_settings = tk.Frame(master=frame_for_all_elements,
                                          borderwidth=5, relief="groove")
         frame_sample_settings.grid(
             row=1, column=0, sticky="nsew", padx=5, pady=5)
@@ -137,13 +143,13 @@ class MainPageGUI(tk.Frame):
                                  text="Height, mm:", font=LARGE_FONT,
                                  anchor="e")
         label_entry_h.grid(row=1, column=0, sticky="ew")
-        entry_h = tk.Entry(master=frame_sample_settings,
+        self.entry_h = tk.Entry(master=frame_sample_settings,
                            width=10, font=LARGE_FONT)
-        entry_h.grid(row=1, column=1, sticky="e", padx=5)
+        self.entry_h.grid(row=1, column=1, sticky="e", padx=5)
         # /////////////////////////////////////////////////////////////////////////
 
         # 2. Frame "Experiment settings"///////////////////////////////////////////
-        frame_experiment_settings = tk.Frame(master=self,
+        frame_experiment_settings = tk.Frame(master=frame_for_all_elements,
                                              borderwidth=5, relief="groove")
         frame_experiment_settings.grid(
             row=2, column=0, sticky="nsew", padx=5, pady=5)
@@ -166,22 +172,22 @@ class MainPageGUI(tk.Frame):
                                                   text="Quantity of experiments:", font=LARGE_FONT,
                                                   anchor="e")
         label_quantity_of_measurements.grid(row=1, column=0, sticky="ew")
-        entry_quantity_of_measurements = tk.Entry(master=frame_experiment_settings,
+        self.entry_quantity_of_measurements = tk.Entry(master=frame_experiment_settings,
                                                   width=10, font=LARGE_FONT)
-        entry_quantity_of_measurements.grid(row=1, column=1, sticky="ew")
+        self.entry_quantity_of_measurements.grid(row=1, column=1, sticky="ew")
 
         # Entry "Delay between measurements"
         label_delay_between_measurements = tk.Label(master=frame_experiment_settings,
                                                     text="Delay between measurements:", font=LARGE_FONT,
                                                     anchor="e")
         label_delay_between_measurements.grid(row=2, column=0, sticky="ew")
-        entry_delay_between_measurements = tk.Entry(master=frame_experiment_settings,
+        self.entry_delay_between_measurements = tk.Entry(master=frame_experiment_settings,
                                                     width=10, font=LARGE_FONT)
-        entry_delay_between_measurements.grid(row=2, column=1, sticky="ew")
+        self.entry_delay_between_measurements.grid(row=2, column=1, sticky="ew")
         # /////////////////////////////////////////////////////////////////////////
 
         # 3. Frame "Experiment results"////////////////////////////////////////////
-        frame_experiment_results = tk.Frame(master=self,
+        frame_experiment_results = tk.Frame(master=frame_for_all_elements,
                                             borderwidth=5, relief="groove")
         frame_experiment_results.grid(
             row=3, column=0, sticky="nsew", padx=5, pady=5)
@@ -196,7 +202,7 @@ class MainPageGUI(tk.Frame):
         # Lable "Experiment results"
         label_experiment_results = tk.Label(master=frame_experiment_results,
                                      text="Experiment results:", font=LARGE_FONT,
-                                     anchor="e")
+                                     anchor="w")
         label_experiment_results.grid(row=0, column=0, columnspan=2, sticky="ew")
 
         # Entry "Some result"
@@ -204,34 +210,42 @@ class MainPageGUI(tk.Frame):
                                      text="Some result:", font=LARGE_FONT,
                                      anchor="e")
         label_some_result.grid(row=1, column=0, sticky="ew")
-        entry_some_result = tk.Entry(master=frame_experiment_results,
+        self.entry_some_result = tk.Entry(master=frame_experiment_results,
                                      width=10, font=LARGE_FONT)
-        entry_some_result.grid(row=1, column=1, sticky="ew")
+        self.entry_some_result.grid(row=1, column=1, sticky="ew")
         # /////////////////////////////////////////////////////////////////////////
 
         # 2.2. Right column with plots
-        self.canvas = FigureCanvasTkAgg(figure=fig, master=self)
+        self.canvas = FigureCanvasTkAgg(figure=fig, master=frame_for_all_elements)
         self.canvas.draw()
         self.canvas.get_tk_widget().grid(row=1, rowspan=3, column=1,
                                          sticky="nsew", padx=5, pady=5)
 
-        # Buttons
-        button_start_animation = tk.Button(master=self,
+        # Button "Start"
+        button_start_animation = tk.Button(master=frame_for_all_elements,
                                            text="Start Animation", font=LARGE_FONT,
-                                           command=lambda: controller.animationApp.start())
+                                           command=lambda: controller.animationApp.start(
+            sample_height=self.entry_h.get(),
+            name_of_file=self.entry_name_of_experiment.get(),
+            number_of_measurements=self.entry_quantity_of_measurements.get(),
+            delay_between_measurements=self.entry_delay_between_measurements.get()))
+        
         button_start_animation.grid(row=4, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 
-        button_pause_animation = tk.Button(master=self,
+        # Button "Pause"
+        button_pause_animation = tk.Button(master=frame_for_all_elements,
                                            text="Pause Animation", font=LARGE_FONT,
                                            command=lambda: controller.animationApp.pause())
         button_pause_animation.grid(row=5, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 
-        button_resume_animation = tk.Button(master=self,
+        # Button "Resume"
+        button_resume_animation = tk.Button(master=frame_for_all_elements,
                                             text="Resume Animation", font=LARGE_FONT,
                                             command=lambda: controller.animationApp.resume())
         button_resume_animation.grid(row=6, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 
-        button_finish_animation = tk.Button(master=self,
+        # Button "Finish"
+        button_finish_animation = tk.Button(master=frame_for_all_elements,
                                             text="Finish Animation", font=LARGE_FONT,
                                             command=lambda: controller.animationApp.finish())
         button_finish_animation.grid(row=7, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)

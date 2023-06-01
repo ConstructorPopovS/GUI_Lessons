@@ -87,126 +87,164 @@ class PageThree(tk.Frame):
     def __init__(self, master, controller):
         tk.Frame.__init__(self, master=master)
 
-        # 0. Frame main for all page
-        frame_for_all_elements_on_the_page = tk.Frame(
-            master=self, borderwidth=5, relief="groove")
-        frame_for_all_elements_on_the_page.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
-        frame_for_all_elements_on_the_page.grid_columnconfigure(
-            index=0, weight=1)
-        frame_for_all_elements_on_the_page.grid_rowconfigure(index=0, weight=0)
-        frame_for_all_elements_on_the_page.grid_rowconfigure(index=1, weight=1)
-        frame_for_all_elements_on_the_page.grid_rowconfigure(index=2, weight=0)
-        frame_for_all_elements_on_the_page.grid_rowconfigure(index=3, weight=0)
-        frame_for_all_elements_on_the_page.grid_rowconfigure(index=4, weight=0)
+        self.grid_rowconfigure(index=0, weight=0)
+        self.grid_rowconfigure(index=1, weight=1)
+        self.grid_rowconfigure(index=2, weight=1)
+        self.grid_rowconfigure(index=3, weight=1)
+        self.grid_rowconfigure(index=4, weight=0)
 
-        # 1.Frame for name of the experiment (and name of the file to write data in)
-        frame_entry_name_of_experiment = tk.Frame(master=frame_for_all_elements_on_the_page,
+        self.grid_columnconfigure(index=0, weight=0)
+        self.grid_columnconfigure(index=1, weight=1)
+
+        # 0.Frame for name of the experiment (and name of the file to write data in)////
+        frame_entry_name_of_experiment = tk.Frame(master=self,
                                                   borderwidth=5, relief="groove")
         frame_entry_name_of_experiment.grid(
-            row=0, column=0, sticky="ew", padx=5, pady=5)
+            row=0, column=0, columnspan=2, sticky="ew", padx=5, pady=5)
+        frame_entry_name_of_experiment.grid_rowconfigure(index=0, weight=0)
         frame_entry_name_of_experiment.grid_columnconfigure(index=0, weight=1)
         frame_entry_name_of_experiment.grid_columnconfigure(index=1, weight=1)
-        frame_entry_name_of_experiment.grid_rowconfigure(index=0, weight=0)
 
+        # Entry "Name of the experiment"
         label_entry_name_of_experiment = tk.Label(master=frame_entry_name_of_experiment,
                                                   text="Name of the experiment:", font=LARGE_FONT,
-                                                  anchor="w")
-        label_entry_name_of_experiment.grid(row=0, column=0, sticky="ew")
+                                                  anchor="e")
+        label_entry_name_of_experiment.grid(row=0, column=0)  # sticky="ew"s
+        entry_name_of_experiment = tk.Entry(master=frame_entry_name_of_experiment,
+                                            width=60, font=LARGE_FONT)
+        entry_name_of_experiment.grid(row=0, column=1, sticky="ew", pady=5)
 
-        entry_name_of_experiment = tk.Entry(
-            frame_entry_name_of_experiment, width=60, font=LARGE_FONT)
-        entry_name_of_experiment.grid(row=0, column=1, sticky="ew")
         # text = controller.animationApp.get_name_of_file()
         # entry_name_of_experiment.insert(0, text)
-        # ------------------------------------------------------------------------
+        # /////////////////////////////////////////////////////////////////////////
 
-        # 2. Frame for main part of the page
-        frame_main = tk.Frame(master=frame_for_all_elements_on_the_page,
-                              borderwidth=5, relief="sunken")
-        frame_main.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
-        frame_main.grid_rowconfigure(index=0, weight=1)
-        frame_main.grid_rowconfigure(index=1, weight=1)
-        frame_main.grid_rowconfigure(index=2, weight=1)
-        frame_main.grid_columnconfigure(index=0, weight=1)
-        frame_main.grid_columnconfigure(index=1, weight=1)
-
-        # 2.1. Left Column Frame with input (entries) and output (lables) fields
-        frame_in_and_out = tk.Frame(master=frame_main,
-                                    borderwidth=5, relief="groove")
-        frame_in_and_out.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
-        frame_in_and_out.grid_rowconfigure(index=0, weight=1)
-        frame_in_and_out.grid_rowconfigure(index=1, weight=1)
-        frame_in_and_out.grid_rowconfigure(index=2, weight=1)
-        frame_in_and_out.grid_columnconfigure(index=0, weight=1)
-
-        # 2.1.1. Frame and Lable "Sample settings"
-        frame_sample_settings = tk.Frame(master=frame_main,
+        # 
+        # 1. Frame "Sample settings" //////////////////////////////////////////////
+        frame_sample_settings = tk.Frame(master=self,
                                          borderwidth=5, relief="groove")
-        frame_sample_settings.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
-        label_sample_settings = tk.Label(anchor="nw", master=frame_sample_settings,
-                                         text="Sample settings:", font=LARGE_FONT)
-        label_sample_settings.grid(row=0, column=0, sticky="nsew")
+        frame_sample_settings.grid(
+            row=1, column=0, sticky="nsew", padx=5, pady=5)
 
-        # Lable and Entry "Height of the sample"
+        frame_sample_settings.grid_rowconfigure(index=0, weight=0)
+        frame_sample_settings.grid_rowconfigure(index=1, weight=0)
+
+        frame_sample_settings.grid_columnconfigure(index=0, weight=1)
+        frame_sample_settings.grid_columnconfigure(index=1, weight=0)
+
+        # Lable "Sample settings"
+        label_sample_settings = tk.Label(master=frame_sample_settings,
+                                         text="Sample settings:", font=LARGE_FONT,
+                                         anchor="w")
+        label_sample_settings.grid(row=0, column=0, columnspan=2, sticky="ew")
+
+        # Entry "Height of the sample"
         label_entry_h = tk.Label(master=frame_sample_settings,
-                                 text="Height:", font=LARGE_FONT,
-                                 anchor="w")
-        label_entry_h.grid(row=1, column=0)
+                                 text="Height, mm:", font=LARGE_FONT,
+                                 anchor="e")
+        label_entry_h.grid(row=1, column=0, sticky="ew")
         entry_h = tk.Entry(master=frame_sample_settings,
-                           width=20, font=LARGE_FONT)
-        entry_h.grid(row=1, column=1, sticky="w")
+                           width=10, font=LARGE_FONT)
+        entry_h.grid(row=1, column=1, sticky="e", padx=5)
+        # /////////////////////////////////////////////////////////////////////////
 
-        # 2.1.2. Frame and Lable "Experiment Settings"
-        frame_experiment_settings = tk.Frame(master=frame_main,
+        # 2. Frame "Experiment settings"///////////////////////////////////////////
+        frame_experiment_settings = tk.Frame(master=self,
                                              borderwidth=5, relief="groove")
         frame_experiment_settings.grid(
-            row=1, column=0, sticky="nsew", padx=5, pady=5)
-        label_experiment_settings = tk.Label(anchor="nw", master=frame_experiment_settings,
+            row=2, column=0, sticky="nsew", padx=5, pady=5)
+
+        frame_experiment_settings.grid_rowconfigure(index=0, weight=0)
+        frame_experiment_settings.grid_rowconfigure(index=1, weight=0)
+        frame_experiment_settings.grid_rowconfigure(index=2, weight=0)
+
+        frame_experiment_settings.grid_columnconfigure(index=0, weight=1)
+        frame_experiment_settings.grid_columnconfigure(index=1, weight=0)
+
+        # Lable "Experiment settings"
+        label_experiment_settings = tk.Label(anchor="w", master=frame_experiment_settings,
                                              text="Experiment settings:", font=LARGE_FONT)
-        label_experiment_settings.grid(row=0, column=0, sticky="nsew")
+        label_experiment_settings.grid(
+            row=0, column=0, columnspan=2, sticky="ew")
 
-        # Lable and Entry "Quantity of measurements"
+        # Entry "Quantity of measurements"
         label_quantity_of_measurements = tk.Label(master=frame_experiment_settings,
-                                                  text="Quantity of experiments:", font=LARGE_FONT)
-        label_quantity_of_measurements.grid(row=1, column=0, sticky="ns")
+                                                  text="Quantity of experiments:", font=LARGE_FONT,
+                                                  anchor="e")
+        label_quantity_of_measurements.grid(row=1, column=0, sticky="ew")
         entry_quantity_of_measurements = tk.Entry(master=frame_experiment_settings,
-                                                  width=20, font=LARGE_FONT)
-        entry_quantity_of_measurements.grid(row=1, column=1, sticky="ns")
+                                                  width=10, font=LARGE_FONT)
+        entry_quantity_of_measurements.grid(row=1, column=1, sticky="ew")
 
-        # Lable and Entry "Delay between measurements"
+        # Entry "Delay between measurements"
         label_delay_between_measurements = tk.Label(master=frame_experiment_settings,
-                                                    text="Delay between measurements:", font=LARGE_FONT)
-        label_delay_between_measurements.grid(row=2, column=0, sticky="ns")
+                                                    text="Delay between measurements:", font=LARGE_FONT,
+                                                    anchor="e")
+        label_delay_between_measurements.grid(row=2, column=0, sticky="ew")
         entry_delay_between_measurements = tk.Entry(master=frame_experiment_settings,
-                                                    width=20, font=LARGE_FONT)
-        entry_delay_between_measurements.grid(row=2, column=1, sticky="ns")
+                                                    width=10, font=LARGE_FONT)
+        entry_delay_between_measurements.grid(row=2, column=1, sticky="ew")
+        # /////////////////////////////////////////////////////////////////////////
+
+        # /////////////////////////////////////////////////////////////////////////
+        # 3. Frame "Experiment results"
+        frame_experiment_results = tk.Frame(master=self,
+                                            borderwidth=5, relief="groove")
+        frame_experiment_results.grid(
+            row=3, column=0, sticky="nsew", padx=5, pady=5)
+
+        frame_experiment_results.grid_rowconfigure(index=0, weight=0)
+        frame_experiment_results.grid_rowconfigure(index=1, weight=0)
+        # frame_experiment_results.grid_rowconfigure(index=2, weight=0)
+
+        frame_experiment_results.grid_columnconfigure(index=0, weight=1)
+        frame_experiment_results.grid_columnconfigure(index=1, weight=0)
+
+        # Lable "Experiment results"
+        label_experiment_results = tk.Label(master=frame_experiment_results,
+                                     text="Experiment results:", font=LARGE_FONT,
+                                     anchor="e")
+        label_experiment_results.grid(row=0, column=0, columnspan=2, sticky="ew")
+
+        # Entry "Some result"
+        label_some_result = tk.Label(master=frame_experiment_results,
+                                     text="Some result:", font=LARGE_FONT,
+                                     anchor="e")
+        label_some_result.grid(row=1, column=0, sticky="ew")
+        entry_some_result = tk.Entry(master=frame_experiment_results,
+                                     width=10, font=LARGE_FONT)
+        entry_some_result.grid(row=1, column=1, sticky="ew")
+        # /////////////////////////////////////////////////////////////////////////
 
         # 2.2. Right column with plots
-        
-        self.canvas = FigureCanvasTkAgg(figure=fig, master=frame_main)
+        self.canvas = FigureCanvasTkAgg(figure=fig, master=self)
         self.canvas.draw()
-        self.canvas.get_tk_widget().grid(column=1, row=0, rowspan=3, sticky="nsew", padx=10, pady=10)
-        
+        self.canvas.get_tk_widget().grid(row=1, rowspan=3, column=1,
+                                         sticky="nsew", padx=5, pady=5)
+
         # Buttons
-        button_start_animation = tk.Button(master=frame_for_all_elements_on_the_page,
+        button_start_animation = tk.Button(master=self,
                                            text="Start Animation", font=LARGE_FONT,
                                            command=lambda: controller.animationApp.start())
-        button_start_animation.grid(row=2, column=0, sticky="nsew", padx=5, pady=5)
+        button_start_animation.grid(
+            row=4, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 
-        button_pause_animation = tk.Button(master=frame_for_all_elements_on_the_page,
+        button_pause_animation = tk.Button(master=self,
                                            text="Pause Animation", font=LARGE_FONT,
                                            command=lambda: controller.animationApp.pause())
-        button_pause_animation.grid(row=3, column=0, sticky="nsew", padx=5, pady=5)
+        button_pause_animation.grid(
+            row=5, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 
-        button_resume_animation = tk.Button(master=frame_for_all_elements_on_the_page,
+        button_resume_animation = tk.Button(master=self,
                                             text="Resume Animation", font=LARGE_FONT,
                                             command=lambda: controller.animationApp.resume())
-        button_resume_animation.grid(row=4, column=0, sticky="nsew", padx=5, pady=5)
+        button_resume_animation.grid(
+            row=6, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 
-        button_finish_animation = tk.Button(master=frame_for_all_elements_on_the_page,
+        button_finish_animation = tk.Button(master=self,
                                             text="Finish Animation", font=LARGE_FONT,
                                             command=lambda: controller.animationApp.finish())
-        button_finish_animation.grid(row=5, column=0, sticky="nsew", padx=5, pady=5)
+        button_finish_animation.grid(
+            row=5, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 
         print("Page Three is initted")
 

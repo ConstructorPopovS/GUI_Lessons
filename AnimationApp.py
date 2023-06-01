@@ -23,7 +23,6 @@ class AnimationApp():
         
         self.animation_function = animation.FuncAnimation(fig, self.animate, frames=100, fargs=(axs, controller), interval=1000)
         self.doAnimation_flag = False
-        print("AnimationApp __init__")
 
     def animate(self, i, axs, controller): 
         if (self.doAnimation_flag == True):

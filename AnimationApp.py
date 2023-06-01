@@ -47,7 +47,7 @@ class AnimationApp():
         #    I dont understad on practice what the 'dialect' argument adding changes...
         self.writer = csv.writer(self.data_file, delimiter=',')
 
-         # Creating the header row for data table:
+         # Creating the header row list for data table:
         dataHeader = []
         dataHeader.append("Sample")
         dataHeader.append("Time")
@@ -64,9 +64,20 @@ class AnimationApp():
         self.start_time = time.perf_counter()
 
     def animation_loop(self, i, axs, controller): 
+        try:
+            if (self.x_list[-1] >= self._number_of_measurements):
+                self.finish()
+        except:
+            pass
+        
         if (self.doAnimation_flag == True):
             if (self.animation_need_init_function_flag == True):
                 self.animation_setup()
+            
+            # Calculating a measurement time from the begine of the experiment
+            sample_time = time.perf_counter()
+            sample_time_from_start = sample_time - self.start_time
+
             # Adding the number of measurements to x_list
             number_of_measurement = None
             try:
@@ -76,9 +87,6 @@ class AnimationApp():
             finally:
                 self.x_list.append(number_of_measurement)
             
-            # Calculating a measurement time from the begine of the experiment
-            sample_time = time.perf_counter()
-            sample_time_from_start = sample_time - self.start_time
 
             # Read a single value from each selected channel
             new_tc0_value = self.data_reader.read_tc0()

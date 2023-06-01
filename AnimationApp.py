@@ -19,9 +19,9 @@ class AnimationApp():
         self._sample_height = 9.8 # in mm
 
         # Experiment settings
-        self._name_of_file = "new_data_file"
-        self._number_of_measurements = 120
-        self._delay_between_measurements = 0.9 # in seconds
+        self._name_of_file = None
+        self._number_of_measurements = None
+        self._delay_between_measurements = None # in seconds
 
         # Experiment results
         self._some_result = 10 # S: just to mark that here will be some calculated values
@@ -32,38 +32,42 @@ class AnimationApp():
 
         self.start_time = float(0.0)
         
-        self.animation_function = animation.FuncAnimation(fig, self.animate, frames=100, fargs=(axs, controller), interval=1000)
+        self.animation_function = animation.FuncAnimation(fig, self.animation_loop, frames=100, fargs=(axs, controller), interval=10)
         self.doAnimation_flag = False
 
-    def animate(self, i, axs, controller): 
+    def animation_setup(self):
+        # TODO: put it into animation_init_function()
+        self.animation_need_init_function_flag = False
+        name_of_file = self._name_of_file + ".csv"
+        # 
+        # Opening/Creating a file and creating writer
+        # S: as I understand, default newline='\n'
+        self.data_file = open(file=name_of_file, mode='w', newline='')
+        # S: csv.writer(file=, delimeter=, dialect='excel-tab') 
+        #    I dont understad on practice what the 'dialect' argument adding changes...
+        self.writer = csv.writer(self.data_file, delimiter=',')
+         # Creating the header row for data table:
+        dataHeader = []
+        dataHeader.append("Sample")
+        dataHeader.append("Time")
+            
+        channels = (0, 1, 2)
+        for channel in channels:
+            dataHeader.append("Channel" + str(channel))
+            
+        # Writeing dataHeader to file
+        self.writer.writerow(dataHeader)
+        # Printing dataHeader to console
+        for head in dataHeader:
+            print(f'{head:12}', end='')
+        print()
+        self.start_time = time.perf_counter()
+
+    def animation_loop(self, i, axs, controller): 
         if (self.doAnimation_flag == True):
-            # TODO: put it into animation_init_function()
             if (self.animation_need_init_function_flag == True):
-                self.animation_need_init_function_flag = False
-
-                name_of_file = self._name_of_file + ".txt"
-                self.data_file = open(name_of_file, 'w')
-                self.writer = csv.writer(self.data_file)
-                print("File is created")
-
-                channels = (0, 1, 2)
-
-                # Display the header row for data table:
-                dataHeader = []
-                dataHeader.append("Sample")
-                dataHeader.append("Time")
-                for channel in channels:
-                    dataHeader.append("Channel" + str(channel))
-                
-                # print(dataHeader)
-                # self.data_file.write(dataHeader + '\n')
-                self.writer.writerow(dataHeader)
-                for head in dataHeader:
-                    print(f'{head:20}', end='')
-                print()
-
-                self.start_time = time.perf_counter()
-
+                self.animation_setup()
+            # Adding the number of measurements to x_list
             number_of_measurement = None
             try:
                 number_of_measurement = self.x_list[-1] + 1
@@ -72,42 +76,43 @@ class AnimationApp():
             finally:
                 self.x_list.append(number_of_measurement)
             
-            dataRow = []
-            dataRow.append(number_of_measurement)
-
-            # Display the updated number of measurement count
-            print('\r{:6}'.format(number_of_measurement), end='')
-
+            # Calculating a measurement time from the begine of the experiment
             sample_time = time.perf_counter()
             sample_time_from_start = sample_time - self.start_time
-            dataRow.append(sample_time_from_start)
-            print('{:12.2f} s'.format(sample_time_from_start), end='')
 
             # Read a single value from each selected channel
             new_tc0_value = self.data_reader.read_tc0()
-            dataRow.append(new_tc0_value)
-            print('{:12.2f} C'.format(new_tc0_value), end='')
-
             new_tc1_value = self.data_reader.read_tc1()
-            dataRow.append(new_tc1_value)
-            print('{:12.2f} C'.format(new_tc1_value), end='')
-
             new_tc2_value = self.data_reader.read_tc2()
+
+            # Creating a list of the new measurements data
+            dataRow = []
+            dataRow.append(number_of_measurement)
+            dataRow.append(sample_time_from_start)
+            dataRow.append(new_tc0_value)
+            dataRow.append(new_tc1_value)
             dataRow.append(new_tc2_value)
+            self.writer.writerow(dataRow)
+
+            # Printing dataRow to console
+            print('\r{:12}'.format(number_of_measurement), end='')
+            print('{:12.2f} s'.format(sample_time_from_start), end='')
+            print('{:12.2f} C'.format(new_tc0_value), end='')
+            print('{:12.2f} C'.format(new_tc1_value), end='')
             print('{:12.2f} C'.format(new_tc2_value), end='', flush=True)
 
+            # Adding new data to the y_lists of the axes
             self.tc0_list.append(new_tc0_value)
             self.tc1_list.append(new_tc1_value)
             self.tc2_list.append(new_tc2_value)
 
-            self.writer.writerow(dataRow)
-    
+            # Slicing last parts of axes data listss
             self.x_list = self.x_list[-10:]
-    
             self.tc0_list = self.tc0_list[-10:]
             self.tc1_list = self.tc1_list[-10:]
             self.tc2_list = self.tc2_list[-10:]
-    
+
+            # Updating axes
             axs[0].clear()
             axs[0].plot(self.x_list,self.tc0_list)
             axs[0].set_ylim(15, 45)
@@ -125,13 +130,7 @@ class AnimationApp():
             axs[2].set_ylim(15, 45)
             axs[2].set_title("Thermocouple " + str(2))
             axs[2].set_ylabel("T, deg C")
-    
-            # try:
-            #     axs.set_xlim(controller.x_list[-10], (controller.x_list[-0]))
-            # except:
-            #     axs.set_xlim(0, 10)
-    
-            # 
+
         # print("Animation_flag is: " + str(self.doAnimation_flag))
 
     def start(self, 
@@ -139,19 +138,24 @@ class AnimationApp():
               sample_height,
             #   Experiental settings
               name_of_file, number_of_measurements, delay_between_measurements):
-        print("Start")
+        # Sample height
         try:
             self._sample_height = float(sample_height)
         except:
             self._sample_height = 10
             print("MyExeption: AnimationApp.py <Convertation sample_height to float is failed>")
-
+        
+        # Name of file
         self._name_of_file = name_of_file
+
+        # Quantity of measurements
         try:
             self._number_of_measurements = int(number_of_measurements)
         except:
             self._number_of_measurements = 10
             print("MyExeption: AnimationApp.py <Convertation number_of_measurement to int is failed>")
+        
+        # Delay between measurements
         try:
             self._delay_between_measurements = float(delay_between_measurements)
         except:

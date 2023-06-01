@@ -106,7 +106,9 @@ class MainPageGUI(tk.Frame):
                                                   borderwidth=5, relief="groove")
         frame_entry_name_of_experiment.grid(
             row=0, column=0, columnspan=2, sticky="ew", padx=5, pady=5)
+        
         frame_entry_name_of_experiment.grid_rowconfigure(index=0, weight=0)
+        
         frame_entry_name_of_experiment.grid_columnconfigure(index=0, weight=1)
         frame_entry_name_of_experiment.grid_columnconfigure(index=1, weight=1)
 
@@ -116,7 +118,7 @@ class MainPageGUI(tk.Frame):
                                                   anchor="e")
         label_entry_name_of_experiment.grid(row=0, column=0)  # sticky="ew"s
         self.entry_name_of_experiment = tk.Entry(master=frame_entry_name_of_experiment,
-                                            width=60, font=LARGE_FONT)
+                                            width=40, font=LARGE_FONT)
         self.entry_name_of_experiment.grid(row=0, column=1, sticky="ew", pady=5, padx=5)
         # /////////////////////////////////////////////////////////////////////////
 
@@ -220,9 +222,14 @@ class MainPageGUI(tk.Frame):
         self.canvas.draw()
         self.canvas.get_tk_widget().grid(row=1, rowspan=3, column=1,
                                          sticky="nsew", padx=5, pady=5)
-
+        # 4. Frame "Buttons"///////////////////////////////////////////////////////
+        frame_buttons = tk.Frame(master=frame_for_all_elements,
+                                            borderwidth=5, relief="groove")
+        frame_buttons.grid(
+            row=4, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+        
         # Button "Start"
-        button_start_animation = tk.Button(master=frame_for_all_elements,
+        button_start_animation = tk.Button(master=frame_buttons,
                                            text="Start Animation", font=LARGE_FONT,
                                            command=lambda: controller.animationApp.start(
             sample_height=self.entry_h.get(),
@@ -230,27 +237,26 @@ class MainPageGUI(tk.Frame):
             number_of_measurements=self.entry_quantity_of_measurements.get(),
             delay_between_measurements=self.entry_delay_between_measurements.get()))
         
-        button_start_animation.grid(row=4, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+        button_start_animation.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
 
         # Button "Pause"
-        button_pause_animation = tk.Button(master=frame_for_all_elements,
+        button_pause_animation = tk.Button(master=frame_buttons,
                                            text="Pause Animation", font=LARGE_FONT,
                                            command=lambda: controller.animationApp.pause())
-        button_pause_animation.grid(row=5, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+        button_pause_animation.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
 
         # Button "Resume"
-        button_resume_animation = tk.Button(master=frame_for_all_elements,
+        button_resume_animation = tk.Button(master=frame_buttons,
                                             text="Resume Animation", font=LARGE_FONT,
                                             command=lambda: controller.animationApp.resume())
-        button_resume_animation.grid(row=6, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+        button_resume_animation.grid(row=0, column=2, sticky="nsew", padx=5, pady=5)
 
         # Button "Finish"
-        button_finish_animation = tk.Button(master=frame_for_all_elements,
+        button_finish_animation = tk.Button(master=frame_buttons,
                                             text="Finish Animation", font=LARGE_FONT,
                                             command=lambda: controller.animationApp.finish())
-        button_finish_animation.grid(row=7, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
-
-        print("Page Three is initted")
+        button_finish_animation.grid(row=0, column=3, sticky="nsew", padx=5, pady=5)
+        # /////////////////////////////////////////////////////////////////////////
 
 def confirm(root):
     answer = askyesno(title='Exit', message='Do You Want To Exit?')

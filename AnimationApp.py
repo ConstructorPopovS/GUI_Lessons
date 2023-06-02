@@ -9,8 +9,9 @@ class AnimationApp():
 
         self.data_reader = DataReader.DataReader()
 
-        # Lists for plot axes
-        self.x_list = []
+        # Lists of data
+        self.numbers_of_measurings_list = []
+        self.time_list = []
         self.tc0_list = []
         self.tc1_list = []
         self.tc2_list = []
@@ -26,20 +27,18 @@ class AnimationApp():
         # Experiment results
         self._some_result = 10 # S: just to mark that here will be some calculated values
 
-        self.animation_need_init_function_flag = True
         self.data_file = None
         self.writer = None
 
         self.start_time = float(0.0)
         
-        self.animation_function = animation.FuncAnimation(fig, self.animation_loop, frames=100, fargs=(axs, controller), interval=10)
         self.doAnimation_flag = False
+        self.animation_function = animation.FuncAnimation(fig, self.animation_loop, frames=100, fargs=(axs, controller), interval=100)
 
     def animation_setup(self):
-        # TODO: put it into animation_init_function()
-        self.animation_need_init_function_flag = False
+        # self.animation_need_init_function_flag = False
         name_of_file = self._name_of_file + ".csv"
-        # 
+
         # Opening/Creating a file and creating writer
         # S: as I understand, default newline='\n'
         self.data_file = open(file=name_of_file, mode='w', newline='')
@@ -64,77 +63,99 @@ class AnimationApp():
         self.start_time = time.perf_counter()
 
     def animation_loop(self, i, axs, controller): 
-        try:
-            if (self.x_list[-1] >= self._number_of_measurements):
-                self.finish()
-        except:
-            pass
-        
+        # S: to pause/resume animation we can use animation.pause() and animation.resume()
+        #    but when the GUIApp is run firstly, for some reason those functions are not working
+        #    so I created this doAnimation_flag and setted default value as False 
+        #    to "pause" animation at the start of GUIApp
         if (self.doAnimation_flag == True):
-            if (self.animation_need_init_function_flag == True):
+            # Check 0: "Last number of measurements (quantity)"
+            try:
+                if (self.numbers_of_measurings_list[-1] >= self._number_of_measurements):
+                    self.finish()
+                    return
+            except:
+                pass
+            # Check 1: "Is it a first measure?"
+            try:
+                self.numbers_of_measurings_list[-1]
+
+                # Check 2: "Time between measurements"
+                try:
+                    time_now = time.perf_counter()
+                    time_now_from_start = time_now - self.start_time
+                    time_now_from_the_last_measurement = time_now_from_start - self.time_list[-1]
+
+                    if (time_now_from_the_last_measurement < self._delay_between_measurements):
+                        return
+                except:
+                    pass
+            except:
                 self.animation_setup()
             
-            # Calculating a measurement time from the begine of the experiment
-            sample_time = time.perf_counter()
-            sample_time_from_start = sample_time - self.start_time
-
-            # Adding the number of measurements to x_list
-            number_of_measurement = None
+            # |||||||||GETTING/CALCULATING A NEW DATA POINT VALUES|||||||||||||||
+            # Number of measuring
+            number_of_a_new_measurement = None
             try:
-                number_of_measurement = self.x_list[-1] + 1
+                number_of_a_new_measurement = self.numbers_of_measurings_list[-1] + 1
             except:
-                number_of_measurement = 0
+                number_of_a_new_measurement = 0
             finally:
-                self.x_list.append(number_of_measurement)
-            
+                self.numbers_of_measurings_list.append(number_of_a_new_measurement)
 
-            # Read a single value from each selected channel
+            # Data from each thermocouples
             new_tc0_value = self.data_reader.read_tc0()
             new_tc1_value = self.data_reader.read_tc1()
             new_tc2_value = self.data_reader.read_tc2()
 
-            # Creating a list of the new measurements data
+            # Time from start
+            measurement_time = time.perf_counter()
+            new_measurement_time_from_start = measurement_time - self.start_time
+
+            # Adding new data to all data lists
+            self.time_list.append(new_measurement_time_from_start)
+            self.tc0_list.append(new_tc0_value)
+            self.tc1_list.append(new_tc1_value)
+            self.tc2_list.append(new_tc2_value)            
+            # |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
+            # Creating a list of the new measurements data to save in the file
             dataRow = []
-            dataRow.append(number_of_measurement)
-            dataRow.append(sample_time_from_start)
+            dataRow.append(number_of_a_new_measurement)
+            dataRow.append(new_measurement_time_from_start)
             dataRow.append(new_tc0_value)
             dataRow.append(new_tc1_value)
             dataRow.append(new_tc2_value)
             self.writer.writerow(dataRow)
 
-            # Printing dataRow to console
-            print('\r{:6}'.format(number_of_measurement), end='')
-            print('{:10.2f} s '.format(sample_time_from_start), end='')
+
+            # CONSOLE INTERFACE
+            print('\r{:6}'.format(number_of_a_new_measurement), end='')
+            print('{:10.2f} s '.format(new_measurement_time_from_start), end='')
             print('{:10.2f} C'.format(new_tc0_value), end='')
             print('{:10.2f} C'.format(new_tc1_value), end='')
             print('{:10.2f} C'.format(new_tc2_value), end='', flush=True)
 
-            # Adding new data to the y_lists of the axes
-            self.tc0_list.append(new_tc0_value)
-            self.tc1_list.append(new_tc1_value)
-            self.tc2_list.append(new_tc2_value)
-
             # Slicing last parts of axes data listss
-            self.x_list = self.x_list[-10:]
+            self.numbers_of_measurings_list = self.numbers_of_measurings_list[-10:]
             self.tc0_list = self.tc0_list[-10:]
             self.tc1_list = self.tc1_list[-10:]
             self.tc2_list = self.tc2_list[-10:]
 
             # Updating axes
             axs[0].clear()
-            axs[0].plot(self.x_list,self.tc0_list)
+            axs[0].plot(self.numbers_of_measurings_list,self.tc0_list)
             axs[0].set_ylim(15, 45)
             axs[0].set_title("Thermocouple " + str(0))
             axs[0].set_ylabel("T, deg C")
     
             axs[1].clear()
-            axs[1].plot(self.x_list,self.tc1_list)
+            axs[1].plot(self.numbers_of_measurings_list,self.tc1_list)
             axs[1].set_ylim(15, 45)
             axs[1].set_title("Thermocouple " + str(1))
             axs[1].set_ylabel("T, deg C")
     
             axs[2].clear()
-            axs[2].plot(self.x_list,self.tc2_list)
+            axs[2].plot(self.numbers_of_measurings_list,self.tc2_list)
             axs[2].set_ylim(15, 45)
             axs[2].set_title("Thermocouple " + str(2))
             axs[2].set_ylabel("T, deg C")
@@ -151,7 +172,7 @@ class AnimationApp():
             self._sample_height = float(sample_height)
         except:
             self._sample_height = 10
-            print("MyExeption: AnimationApp.py <Convertation sample_height to float is failed>")
+            print("MyException from AApp.start(): Convertation sample_height to float is failed")
         
         # Name of file
         self._name_of_file = name_of_file
@@ -161,23 +182,22 @@ class AnimationApp():
             self._number_of_measurements = int(number_of_measurements)
         except:
             self._number_of_measurements = 10
-            print("MyExeption: AnimationApp.py <Convertation number_of_measurement to int is failed>")
+            print("MyException from AApp.start(): Convertation number_of_measurement to int is failed")
         
         # Delay between measurements
         try:
             self._delay_between_measurements = float(delay_between_measurements)
         except:
             self._delay_between_measurements = 0.5
-            print("MyExeption: AnimationApp.py <Convertation delay_between_measurement to float is failed>")
+            print("MyException from AApp.start(): Convertation delay_between_measurement to float is failed")
         
-        print('h:{0} name:{1} number:{2} delay:{3}'.format(self._sample_height,
-                                                   self._name_of_file,
-                                                   self._number_of_measurements,
-                                                   self._delay_between_measurements))
-
+        # print('h:{0} name:{1} number:{2} delay:{3}'.format(self._sample_height,
+        #                                            self._name_of_file,
+        #                                            self._number_of_measurements,
+        #                                            self._delay_between_measurements))
 
         self.doAnimation_flag = True
-        self.animation_need_init_function_flag = True
+        # self.animation_need_init_function_flag = True
         try:
             self.animation_function.resume()
         except:
@@ -186,12 +206,18 @@ class AnimationApp():
 
     def finish(self):
         self.doAnimation_flag = False
+        print()
         try:
-            self.data_file.close()
             self.animation_function.pause()
+            self.data_file.close()
+            self.numbers_of_measurings_list = []
+            self.tc0_list = []
+            self.tc1_list = []
+            self.tc2_list = []
+            self.data_file = None
+            self.writer = None
         except:
-            pass
-        self.animation_need_init_function_flag = True
+            print("MyException from AApp.finish()")
 
     def pause(self):
         self.doAnimation_flag = False

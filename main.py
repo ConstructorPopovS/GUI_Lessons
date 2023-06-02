@@ -56,14 +56,18 @@ class MyApp(tk.Tk):
         #    Details on the lesson "Multiple Windows/Frames in Tkinter GUI with Python - Tkinter tutorial Python 3.4 p. 4"
         #    https://www.youtube.com/watch?v=jBUpjijYtCk&list=PLQVvvaa0QuDclKx-QpC9wntnURXVJqLyk&index=4
         self.frames = {}
+        names_of_frames = []
+        names_of_frames.append("MainPageGUI")
+        i = 0
         for F in (MainPageGUI,):
             frame = F(master=container, controller=self)
-            self.frames[F] = frame
+            self.frames[names_of_frames[i]] = frame
+            i += 1
             frame.grid(row=0, column=0, sticky="nsew", )
             frame.grid_rowconfigure(0, weight=1)
             frame.grid_columnconfigure(0, weight=1)
 
-        self.show_frame(MainPageGUI)
+        self.show_frame("MainPageGUI")
 
         # S: This variable MUST be at the end of this __init__()
         self.animationApp = AnimationApp.AnimationApp(fig, axs, self)
@@ -74,31 +78,49 @@ class MyApp(tk.Tk):
         frame.tkraise()
 
     def set_default_settings_in_entries(self):
-        self.frames[MainPageGUI].entry_name_of_experiment.insert(
+        self.frames["MainPageGUI"].entry_name_of_experiment.insert(
            0, "Test_q5_1s")
         # Sample settings
-        self.frames[MainPageGUI].entry_h.insert(0, 9.8)
+        self.frames["MainPageGUI"].entry_h.insert(0, 9.8)
         # # Experiment settings
-        self.frames[MainPageGUI].entry_quantity_of_measurements.insert(0, 5)
-        self.frames[MainPageGUI].entry_delay_between_measurements.insert(0, 1)
+        self.frames["MainPageGUI"].entry_quantity_of_measurements.insert(0, 5)
+        self.frames["MainPageGUI"].entry_delay_between_measurements.insert(0, 1)
 
     def start_experiment(self):
         self.animationApp.start(
-            sample_height=self.frames[MainPageGUI].entry_h.get(),
-            name_of_file=self.frames[MainPageGUI].entry_name_of_experiment.get(
+            axs=axs,
+            sample_height=self.frames["MainPageGUI"].entry_h.get(),
+            name_of_file=self.frames["MainPageGUI"].entry_name_of_experiment.get(
             ),
-            number_of_measurements=self.frames[MainPageGUI].entry_quantity_of_measurements.get(
+            number_of_measurements=self.frames["MainPageGUI"].entry_quantity_of_measurements.get(
             ),
-            delay_between_measurements=self.frames[MainPageGUI].entry_delay_between_measurements.get())
+            delay_between_measurements=self.frames["MainPageGUI"].entry_delay_between_measurements.get())
+        
+        self.frames["MainPageGUI"].button_start_animation['state']="disabled"
+        self.frames["MainPageGUI"].button_pause_animation['state']="normal"
+        self.frames["MainPageGUI"].button_resume_animation['state']="disabled"
+        self.frames["MainPageGUI"].button_finish_animation['state']="normal"
 
     def pause_experiment(self):
         self.animationApp.pause()
+        self.frames["MainPageGUI"].button_start_animation['state']="disabled"
+        self.frames["MainPageGUI"].button_pause_animation['state']="disabled"
+        self.frames["MainPageGUI"].button_resume_animation['state']="normal"
+        self.frames["MainPageGUI"].button_finish_animation['state']="normal"
 
     def resume_experiment(self):
         self.animationApp.resume()
+        self.frames["MainPageGUI"].button_start_animation['state']="disabled"
+        self.frames["MainPageGUI"].button_pause_animation['state']="normal"
+        self.frames["MainPageGUI"].button_resume_animation['state']="disabled"
+        self.frames["MainPageGUI"].button_finish_animation['state']="normal"
 
     def finish_experiment(self):
-        self.animationApp.finish()
+        self.animationApp.finish(self)
+        self.frames["MainPageGUI"].button_start_animation['state']="normal"
+        self.frames["MainPageGUI"].button_pause_animation['state']="disabled"
+        self.frames["MainPageGUI"].button_resume_animation['state']="disabled"
+        self.frames["MainPageGUI"].button_finish_animation['state']="disabled"
 
 
 class MainPageGUI(tk.Frame):
@@ -272,32 +294,37 @@ class MainPageGUI(tk.Frame):
             row=4, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 
         # Button "Start"
-        button_start_animation = tk.Button(master=frame_buttons,
+        self.button_start_animation = tk.Button(master=frame_buttons,
                                            text="Start Animation", font=LARGE_FONT,
-                                           command=lambda: controller.start_experiment())
+                                           command=lambda: controller.start_experiment(),
+                                           state="normal")
 
-        button_start_animation.grid(
+        self.button_start_animation.grid(
             row=0, column=0, sticky="nsew", padx=5, pady=5)
 
         # Button "Pause"
-        button_pause_animation = tk.Button(master=frame_buttons,
+        self.button_pause_animation = tk.Button(master=frame_buttons,
                                            text="Pause Animation", font=LARGE_FONT,
-                                           command=lambda: controller.pause_experiment())
-        button_pause_animation.grid(
+                                           command=lambda: controller.pause_experiment(),
+                                           state="disabled")
+
+        self.button_pause_animation.grid(
             row=0, column=1, sticky="nsew", padx=5, pady=5)
 
         # Button "Resume"
-        button_resume_animation = tk.Button(master=frame_buttons,
+        self.button_resume_animation = tk.Button(master=frame_buttons,
                                             text="Resume Animation", font=LARGE_FONT,
-                                            command=lambda: controller.resume_experiment())
-        button_resume_animation.grid(
+                                            command=lambda: controller.resume_experiment(),
+                                            state="disabled")
+        self.button_resume_animation.grid(
             row=0, column=2, sticky="nsew", padx=5, pady=5)
 
         # Button "Finish"
-        button_finish_animation = tk.Button(master=frame_buttons,
+        self.button_finish_animation = tk.Button(master=frame_buttons,
                                             text="Finish Animation", font=LARGE_FONT,
-                                            command=lambda: controller.finish_experiment())
-        button_finish_animation.grid(
+                                            command=lambda: controller.finish_experiment(),
+                                            state="disabled")
+        self.button_finish_animation.grid(
             row=0, column=3, sticky="nsew", padx=5, pady=5)
         # /////////////////////////////////////////////////////////////////////////
 

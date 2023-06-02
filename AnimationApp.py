@@ -46,7 +46,7 @@ class AnimationApp():
         #    I dont understad on practice what the 'dialect' argument adding changes...
         self.writer = csv.writer(self.data_file, delimiter=',')
 
-         # Creating the header row list for data table:
+         # Create the header row list for data table:
         dataHeader = []
         dataHeader.append("Sample")
         dataHeader.append("Time")
@@ -54,9 +54,11 @@ class AnimationApp():
         for channel in (0, 1, 2):
             dataHeader.append("Channel" + str(channel))
             
-        # Writeing dataHeader to file
+        # Write dataHeader to file
         self.writer.writerow(dataHeader)
-        # Printing dataHeader to console
+        # Print name of the experiment to console
+        print(f'|||||||| Experiment: {self._name_of_file} ||||||||')
+        # Print dataHeader to console
         for head in dataHeader:
             print(f'{head:12}', end='')
         print()
@@ -71,7 +73,7 @@ class AnimationApp():
             # Check 0: "Last number of measurements (quantity)"
             try:
                 if (self.numbers_of_measurings_list[-1] >= self._number_of_measurements):
-                    self.finish()
+                    self.finish(controller=controller)
                     return
             except:
                 pass
@@ -90,7 +92,8 @@ class AnimationApp():
                 except:
                     pass
             except:
-                self.animation_setup()
+                pass
+                # self.animation_setup()
             
             # |||||||||GETTING/CALCULATING A NEW DATA POINT VALUES|||||||||||||||
             # Number of measuring
@@ -142,6 +145,11 @@ class AnimationApp():
             self.tc2_list = self.tc2_list[-10:]
 
             # Updating axes
+            self.update_axes(axs=axs)
+
+        # print("Animation_flag is: " + str(self.doAnimation_flag))
+    
+    def update_axes(self, axs):
             axs[0].clear()
             axs[0].plot(self.numbers_of_measurings_list,self.tc0_list)
             axs[0].set_ylim(15, 45)
@@ -159,14 +167,16 @@ class AnimationApp():
             axs[2].set_ylim(15, 45)
             axs[2].set_title("Thermocouple " + str(2))
             axs[2].set_ylabel("T, deg C")
-
-        # print("Animation_flag is: " + str(self.doAnimation_flag))
-
-    def start(self, 
+    
+    def start(self, axs,
             #   Sample settings
               sample_height,
             #   Experiental settings
               name_of_file, number_of_measurements, delay_between_measurements):
+        
+        # Updating axes
+        self.update_axes(axs=axs)
+    
         # Sample height
         try:
             self._sample_height = float(sample_height)
@@ -195,7 +205,7 @@ class AnimationApp():
         #                                            self._name_of_file,
         #                                            self._number_of_measurements,
         #                                            self._delay_between_measurements))
-
+        self.animation_setup()
         self.doAnimation_flag = True
         # self.animation_need_init_function_flag = True
         try:
@@ -204,9 +214,10 @@ class AnimationApp():
             pass
 
 
-    def finish(self):
+    def finish(self, controller):
         self.doAnimation_flag = False
-        print()
+        print('\n\n', end='')
+
         try:
             self.animation_function.pause()
             self.data_file.close()
@@ -218,6 +229,11 @@ class AnimationApp():
             self.writer = None
         except:
             print("MyException from AApp.finish()")
+
+        controller.frames["MainPageGUI"].button_start_animation['state']="normal"
+        controller.frames["MainPageGUI"].button_pause_animation['state']="disabled"
+        controller.frames["MainPageGUI"].button_resume_animation['state']="disabled"
+        controller.frames["MainPageGUI"].button_finish_animation['state']="disabled"
 
     def pause(self):
         self.doAnimation_flag = False

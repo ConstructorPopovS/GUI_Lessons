@@ -1,6 +1,7 @@
 # GUI lib for Python - "tkinter"
 import tkinter as tk
 from tkinter.messagebox import askyesno
+import tkinter.ttk as ttk
 
 import matplotlib  # To create plot/plots
 from matplotlib import style  # To change style of plots
@@ -45,6 +46,7 @@ class MyApp(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
         # tk.Tk.iconbitmap(self)
         tk.Tk.wm_title(self, "Thermal Conductivity Measurement Program")
+        
 
         # Creating a frame on the window to put all frames-pages in it
         container = tk.Frame(self)
@@ -287,45 +289,90 @@ class MainPageGUI(tk.Frame):
         self.canvas.draw()
         self.canvas.get_tk_widget().grid(row=1, rowspan=3, column=1,
                                          sticky="nsew", padx=5, pady=5)
+        
+        # 4. Frame "Experiment process"/////////////////////////////////////
+        frame_experiment_process = tk.Frame(master=frame_for_all_elements,
+                                 borderwidth=5, relief="groove")
+        frame_experiment_process.grid(
+            row=4, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+        
+        frame_experiment_process.grid_rowconfigure(index=0, weight=0)
+
+        frame_experiment_process.grid_columnconfigure(index=0, weight=1)
+        frame_experiment_process.grid_columnconfigure(index=1, weight=1)
+        frame_experiment_process.grid_columnconfigure(index=2, weight=1)
+        frame_experiment_process.grid_columnconfigure(index=3, weight=1)
+        
+        # Label: "Number of the measurement"
+        self.label_number_of_measurement = tk.Label(master=frame_experiment_process,
+                                     text="Measurement number: ", font=LARGE_FONT,
+                                     anchor="center")
+        self.label_number_of_measurement.grid(row=0, column=0, sticky="ew")
+
+        # Label: "Data from tc0"
+        self.label_tc0 = tk.Label(master=frame_experiment_process,
+                                     text="tc0: ", font=LARGE_FONT,
+                                     anchor="center")
+        self.label_tc0.grid(row=0, column=1, sticky="ew")
+
+        # Label: "Data from tc1"
+        self.label_tc1 = tk.Label(master=frame_experiment_process,
+                                     text="tc1: ", font=LARGE_FONT,
+                                     anchor="center")
+        self.label_tc1.grid(row=0, column=2, sticky="ew")
+
+        # Label: "Data from tc2"
+        self.label_tc2 = tk.Label(master=frame_experiment_process,
+                                     text="tc2: ", font=LARGE_FONT,
+                                     anchor="center")
+        self.label_tc2.grid(row=0, column=3, sticky="ew")        
+        # /////////////////////////////////////////////////////////////////////////
+
         # 4. Frame "Buttons"///////////////////////////////////////////////////////
         frame_buttons = tk.Frame(master=frame_for_all_elements,
-                                 borderwidth=5, relief="groove")
+                                 borderwidth=0, relief="groove")
         frame_buttons.grid(
-            row=4, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+            row=5, column=0, columnspan=2, sticky="nsew", padx=0, pady=0)
+        
+        frame_buttons.grid_rowconfigure(index=0, weight=0)
+        frame_buttons.grid_columnconfigure(index=0, weight=1)
+        frame_buttons.grid_columnconfigure(index=1, weight=1)
+        frame_buttons.grid_columnconfigure(index=2, weight=1)
+        frame_buttons.grid_columnconfigure(index=3, weight=1)
 
         # Button "Start"
         self.button_start_animation = tk.Button(master=frame_buttons,
-                                           text="Start Animation", font=LARGE_FONT,
+                                           text="Start Experiment", font=LARGE_FONT,
                                            command=lambda: controller.start_experiment(),
                                            state="normal")
 
         self.button_start_animation.grid(
-            row=0, column=0, sticky="nsew", padx=5, pady=5)
+            row=0, column=0, sticky="ew", padx=5, pady=5)
 
         # Button "Pause"
         self.button_pause_animation = tk.Button(master=frame_buttons,
-                                           text="Pause Animation", font=LARGE_FONT,
+                                           text="Pause", font=LARGE_FONT,
                                            command=lambda: controller.pause_experiment(),
                                            state="disabled")
 
         self.button_pause_animation.grid(
-            row=0, column=1, sticky="nsew", padx=5, pady=5)
+            row=0, column=1, sticky="ew", padx=5, pady=5)
 
         # Button "Resume"
         self.button_resume_animation = tk.Button(master=frame_buttons,
-                                            text="Resume Animation", font=LARGE_FONT,
+                                            text="Resume", font=LARGE_FONT,
                                             command=lambda: controller.resume_experiment(),
                                             state="disabled")
         self.button_resume_animation.grid(
-            row=0, column=2, sticky="nsew", padx=5, pady=5)
+            row=0, column=2, sticky="ew", padx=5, pady=5)
 
         # Button "Finish"
         self.button_finish_animation = tk.Button(master=frame_buttons,
-                                            text="Finish Animation", font=LARGE_FONT,
+                                            text="Finish Experiment", font=LARGE_FONT,
                                             command=lambda: controller.finish_experiment(),
                                             state="disabled")
         self.button_finish_animation.grid(
-            row=0, column=3, sticky="nsew", padx=5, pady=5)
+            row=0, column=3, sticky="ew", padx=5, pady=5)
         # /////////////////////////////////////////////////////////////////////////
 
 
@@ -338,5 +385,6 @@ def confirm(root):
 
 
 app = MyApp()
+app.state('zoomed')
 
 app.mainloop()

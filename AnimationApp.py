@@ -138,7 +138,7 @@ class AnimationApp():
             print('{:10.2f} C'.format(new_tc1_value), end='')
             print('{:10.2f} C'.format(new_tc2_value), end='', flush=True)
 
-            # Slicing last parts of axes data listss
+            # Slicing the last parts of the axes data lists
             self.numbers_of_measurings_list = self.numbers_of_measurings_list[-10:]
             self.tc0_list = self.tc0_list[-10:]
             self.tc1_list = self.tc1_list[-10:]
@@ -146,6 +146,13 @@ class AnimationApp():
 
             # Updating axes
             self.update_axes(axs=axs)
+
+            # Updating "out" lables
+            controller.frames["MainPageGUI"].label_number_of_measurement.config(
+                text = "Measurement number: " + str(number_of_a_new_measurement))
+            controller.frames["MainPageGUI"].label_tc0.config(text = "tc0: " + str(new_tc0_value))
+            controller.frames["MainPageGUI"].label_tc1.config(text = "tc1: " + str(new_tc1_value))
+            controller.frames["MainPageGUI"].label_tc2.config(text = "tc2: " + str(new_tc2_value))
 
         # print("Animation_flag is: " + str(self.doAnimation_flag))
     
@@ -222,7 +229,7 @@ class AnimationApp():
             try:
                 self.animation_function.pause()
             except:
-                print("MyException from AApp.start(): animation.pause()")
+                print("MyException from AApp.finish(): animation.pause()")
             self.data_file.close()
             self.numbers_of_measurings_list = []
             self.tc0_list = []

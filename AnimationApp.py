@@ -211,7 +211,7 @@ class AnimationApp():
         try:
             self.animation_function.resume()
         except:
-            pass
+            print("MyException from AApp.start(): animation.resume()")
 
 
     def finish(self, controller):
@@ -219,7 +219,10 @@ class AnimationApp():
         print('\n\n', end='')
 
         try:
-            self.animation_function.pause()
+            try:
+                self.animation_function.pause()
+            except:
+                print("MyException from AApp.start(): animation.pause()")
             self.data_file.close()
             self.numbers_of_measurings_list = []
             self.tc0_list = []

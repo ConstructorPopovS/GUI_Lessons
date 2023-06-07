@@ -4,7 +4,7 @@ import random
 class DataReader():
     def __init__(self) -> None:
         # self.ser = serial.Serial(port='COM12',baudrate=9600,timeout=15)#COM12, /dev/ttyACM0
-        self.NameTC = [b'tc0', b'tc1', b'tc2']
+        self.NameTC = [b'tc0', b'tc1', b'tc2', b'tc3']
         
 
     def __read(self, name):
@@ -30,6 +30,10 @@ class DataReader():
     
     def read_tc2(self):
         value = self.__read(self.NameTC[2])
+        return value
+    
+    def read_tc3(self):
+        value = self.__read(self.NameTC[3])
         return value
 
     def close(self):

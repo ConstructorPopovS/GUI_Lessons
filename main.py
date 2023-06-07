@@ -26,18 +26,21 @@ style.use("ggplot")  # ggplot, dark_background
 
 fig = Figure(tight_layout=True, dpi=100,)  # figsize=(9, 6), tight_layout=True
 # S: add_subplot(rows, cols, index_of_this_subplot)
-axs0 = fig.add_subplot(311)
-axs1 = fig.add_subplot(312)
-axs2 = fig.add_subplot(313)
-axs = [axs0, axs1, axs2]
+axs0 = fig.add_subplot(411)
+axs1 = fig.add_subplot(412)
+axs2 = fig.add_subplot(413)
+axs3 = fig.add_subplot(414)
+axs = [axs0, axs1, axs2, axs3]
 
 axs[0].set_title("Thermocouple tc0")
 axs[1].set_title("Thermocouple tc1")
 axs[2].set_title("Thermocouple tc2")
+axs[3].set_title("Thermocouple tc3")
 
 axs[0].set_ylabel("T, deg C")
 axs[1].set_ylabel("T, deg C")
 axs[2].set_ylabel("T, deg C")
+axs[3].set_ylabel("T, deg C")
 
 
 class MyApp(tk.Tk):
@@ -302,6 +305,7 @@ class MainPageGUI(tk.Frame):
         frame_experiment_process.grid_columnconfigure(index=1, weight=1)
         frame_experiment_process.grid_columnconfigure(index=2, weight=1)
         frame_experiment_process.grid_columnconfigure(index=3, weight=1)
+        frame_experiment_process.grid_columnconfigure(index=4, weight=1)
         
         # Label: "Number of the measurement"
         self.label_number_of_measurement = tk.Label(master=frame_experiment_process,
@@ -325,7 +329,13 @@ class MainPageGUI(tk.Frame):
         self.label_tc2 = tk.Label(master=frame_experiment_process,
                                      text="tc2: ", font=LARGE_FONT,
                                      anchor="center")
-        self.label_tc2.grid(row=0, column=3, sticky="ew")        
+        self.label_tc2.grid(row=0, column=3, sticky="ew")  
+
+        # Label: "Data from tc3"
+        self.label_tc3 = tk.Label(master=frame_experiment_process,
+                                     text="tc3: ", font=LARGE_FONT,
+                                     anchor="center")
+        self.label_tc3.grid(row=0, column=4, sticky="ew")        
         # /////////////////////////////////////////////////////////////////////////
 
         # 4. Frame "Buttons"///////////////////////////////////////////////////////
@@ -385,6 +395,10 @@ def confirm(root):
 
 
 app = MyApp()
+
+# Full screen for Windows
 app.state('zoomed')
+# Full screen for Linux
+# app.attributes('-zoomed', True)
 
 app.mainloop()

@@ -220,11 +220,7 @@ class AnimationApp():
         except:
             self._delay_between_measurements = 0.5
             print("MyException from AApp.start(): Convertation delay_between_measurement to float is failed")
-        
-        # print('h:{0} name:{1} number:{2} delay:{3}'.format(self._sample_height,
-        #                                            self._name_of_file,
-        #                                            self._number_of_measurements,
-        #                                            self._delay_between_measurements))
+
         self.animation_setup()
         self.doAnimation_flag = True
         # self.animation_need_init_function_flag = True
@@ -248,6 +244,7 @@ class AnimationApp():
             self.tc0_list = []
             self.tc1_list = []
             self.tc2_list = []
+            self.tc3_list = []
             self.data_file = None
             self.writer = None
         except:

@@ -24,6 +24,10 @@ class AnimationApp():
         self._name_of_file = None
         self._number_of_measurements = None
         self._delay_between_measurements = None # in seconds
+        self._x_min = None
+        self._x_max = None
+        self._y_min = None
+        self._y_max = None
 
         # Experiment results
         self._some_result = 10 # S: just to mark that here will be some calculated values
@@ -64,6 +68,13 @@ class AnimationApp():
             print(f'{head:12}', end='')
         print()
         self.start_time = time.perf_counter()
+
+        # Updating axes
+        self._x_min = 0
+        self._x_max = self._number_of_measurements + 1
+        self._y_min = 30
+        self._y_max = 32
+        # self.update_axes(axs=axs)
 
     def animation_loop(self, i, axs, controller): 
         # S: to pause/resume animation we can use animation.pause() and animation.resume()
@@ -144,11 +155,11 @@ class AnimationApp():
             print('{:10.2f} C'.format(new_tc3_value), end='', flush=True)
 
             # Slicing the last parts of the axes data lists
-            self.numbers_of_measurings_list = self.numbers_of_measurings_list[-10:]
-            self.tc0_list = self.tc0_list[-10:]
-            self.tc1_list = self.tc1_list[-10:]
-            self.tc2_list = self.tc2_list[-10:]
-            self.tc3_list = self.tc2_list[-10:]
+            # self.numbers_of_measurings_list = self.numbers_of_measurings_list[-10:]
+            # self.tc0_list = self.tc0_list[-10:]
+            # self.tc1_list = self.tc1_list[-10:]
+            # self.tc2_list = self.tc2_list[-10:]
+            # self.tc3_list = self.tc2_list[-10:]
 
             # Updating axes
             self.update_axes(axs=axs)
@@ -164,27 +175,40 @@ class AnimationApp():
         # print("Animation_flag is: " + str(self.doAnimation_flag))
     
     def update_axes(self, axs):
+            # Checking max and min y values
+            for tc_list in [self.tc0_list, self.tc1_list, self.tc2_list, self.tc3_list]:
+                if (tc_list[-1] > self._y_max):
+                    self._y_max = tc_list[-1] + 1
+                
+                if (tc_list[-1] < self._y_min):
+                    self._y_min = tc_list[-1] -1
+
+            # Updating axes
             axs[0].clear()
             axs[0].plot(self.numbers_of_measurings_list,self.tc0_list)
-            axs[0].set_ylim(15, 45)
+            axs[0].set_ylim(self._y_min, self._y_max)
+            axs[0].set_xlim(self._x_min, self._x_max)
             axs[0].set_title("Thermocouple " + str(0))
             axs[0].set_ylabel("T, deg C")
     
             axs[1].clear()
             axs[1].plot(self.numbers_of_measurings_list,self.tc1_list)
-            axs[1].set_ylim(15, 45)
+            axs[1].set_ylim(self._y_min, self._y_max)
+            axs[1].set_xlim(self._x_min, self._x_max)
             axs[1].set_title("Thermocouple " + str(1))
             axs[1].set_ylabel("T, deg C")
     
             axs[2].clear()
             axs[2].plot(self.numbers_of_measurings_list,self.tc2_list)
-            axs[2].set_ylim(15, 45)
+            axs[2].set_ylim(self._y_min, self._y_max)
+            axs[2].set_xlim(self._x_min, self._x_max)
             axs[2].set_title("Thermocouple " + str(2))
             axs[2].set_ylabel("T, deg C")
 
             axs[3].clear()
             axs[3].plot(self.numbers_of_measurings_list,self.tc2_list)
-            axs[3].set_ylim(15, 45)
+            axs[3].set_ylim(self._y_min, self._y_max)
+            axs[3].set_xlim(self._x_min, self._x_max)
             axs[3].set_title("Thermocouple " + str(3))
             axs[3].set_ylabel("T, deg C")
     
@@ -193,9 +217,6 @@ class AnimationApp():
               sample_height,
             #   Experiental settings
               name_of_file, number_of_measurements, delay_between_measurements):
-        
-        # Updating axes
-        self.update_axes(axs=axs)
     
         # Sample height
         try:
@@ -214,6 +235,7 @@ class AnimationApp():
             self._number_of_measurements = 10
             print("MyException from AApp.start(): Convertation number_of_measurement to int is failed")
         
+        
         # Delay between measurements
         try:
             self._delay_between_measurements = float(delay_between_measurements)
@@ -221,6 +243,7 @@ class AnimationApp():
             self._delay_between_measurements = 0.5
             print("MyException from AApp.start(): Convertation delay_between_measurement to float is failed")
 
+        # Setup animation function and doAnimation_flag lifting up
         self.animation_setup()
         self.doAnimation_flag = True
         # self.animation_need_init_function_flag = True
@@ -228,6 +251,8 @@ class AnimationApp():
             self.animation_function.resume()
         except:
             print("MyException from AApp.start(): animation.resume()")
+
+        
 
 
     def finish(self, controller):
